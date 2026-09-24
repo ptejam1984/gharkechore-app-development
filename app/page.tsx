@@ -53,12 +53,22 @@ export default function Page() {
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
   const [tasks, setTasks] = useState(initialTasks)
   const [showAdd, setShowAdd] = useState(false)
+  const [newChore, setNewChore] = useState('')
 
   const completed = useMemo(() => tasks.filter((task) => task.done).length, [tasks])
   const visibleTasks = selectedPerson === 'Everyone' ? tasks : tasks.filter((task) => task.person === selectedPerson)
 
   function toggleTask(id: number) {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, done: !task.done } : task)))
+  }
+
+  function addChore() {
+    const title = newChore.trim()
+    if (!title) return
+    setTasks((current) => [...current, { id: Date.now(), title, person: 'Prashant', time: 'Anytime', icon: ClipboardList, done: false, tone: 'mint' }])
+    setNewChore('')
+    setShowAdd(false)
+    setSelectedPerson('Everyone')
   }
 
   return (
@@ -99,7 +109,7 @@ export default function Page() {
           <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5e3db] pt-5 text-xs text-[#97a19b]"><span>GharKeChore · London time</span><div className="flex gap-4"><button className="hover:text-[#244c46]">Need help</button><button className="hover:text-[#244c46]">Notification settings</button></div></footer>
         </section>
       </div>
-      {showAdd && <div className="fixed inset-0 z-10 flex items-end justify-center bg-[#27322f]/20 p-4 sm:items-center"><div className="w-full max-w-md rounded-[24px] bg-white p-6 shadow-2xl"><div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Add a one-off chore</h2><button onClick={() => setShowAdd(false)} className="rounded-lg p-2 text-[#87918a] hover:bg-[#f2f3ed]" aria-label="Close"><X className="size-5" /></button></div><p className="mt-2 text-sm text-[#87918a]">This will be visible to the family and won&apos;t change recurring schedules.</p><div className="mt-6 flex flex-col gap-3"><input className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="What needs doing?" /><button onClick={() => setShowAdd(false)} className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38]">Add chore</button></div></div></div>}
+      {showAdd && <div className="fixed inset-0 z-10 flex items-end justify-center bg-[#27322f]/20 p-4 sm:items-center"><div className="w-full max-w-md rounded-[24px] bg-white p-6 shadow-2xl"><div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Add a one-off chore</h2><button onClick={() => setShowAdd(false)} className="rounded-lg p-2 text-[#87918a] hover:bg-[#f2f3ed]" aria-label="Close"><X className="size-5" /></button></div><p className="mt-2 text-sm text-[#87918a]">This will be visible to the family and won&apos;t change recurring schedules.</p><div className="mt-6 flex flex-col gap-3"><input value={newChore} onChange={(event) => setNewChore(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.nativeEvent.isComposing && event.keyCode !== 229) addChore() }} autoFocus className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="What needs doing?" /><button onClick={addChore} disabled={!newChore.trim()} className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50">Add chore</button></div></div></div>}
     </main>
   )
 }
