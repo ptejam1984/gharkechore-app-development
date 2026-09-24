@@ -159,5 +159,15 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: Arial, Helvetica, sans-serif;
   }
+}
+
+:root {
+  color-scheme: light;
+}
+
+button,
+input {
+  font: inherit;
 }
