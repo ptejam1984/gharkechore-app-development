@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
+import { createPersonalCalendarEvent } from '@/lib/google-calendar'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -67,12 +68,24 @@ export async function addChore(input: {
     day.setDate(start.getDate() + i)
     if (input.frequency === 'daily' || input.frequency === 'once' || (input.weekdays ?? []).includes(day.getDay())) dates.push(iso(day))
   }
-  await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({
-    template_id: template.id,
-    assigned_to: assigneeId,
-    occurrence_date: occurrenceDate,
-    due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
-  })))
+  const { data: occurrences } = await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({
+  template_id: template.id,
+  assigned_to: assigneeId,
+  occurrence_date: occurrenceDate,
+  due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
+  }))).select('id, occurrence_date, due_at')
+
+  const { data: assignee } = await supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single()
+  if (assignee?.google_calendar_connected) {
+    for (const occurrence of occurrences ?? []) {
+      try {
+        const eventId = await createPersonalCalendarEvent(assigneeId, { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at })
+        if (eventId) await supabase.from('chore_occurrences').update({ personal_google_event_id: eventId }).eq('id', occurrence.id)
+      } catch (error) {
+        console.error('[v0] Google Calendar task sync failed:', error)
+      }
+    }
+  }
   revalidatePath('/')
 } 
 
