@@ -353,13 +353,13 @@ export default function Dashboard({
             ))}
           </div>
 
-          <div className="min-w-0 grid gap-4 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-            <div className="flex flex-col gap-6">
-              <section id="today" className="min-w-0 scroll-mt-4 rounded-[18px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
+          <div className="min-w-0 grid gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+            <div className="flex min-w-0 flex-col gap-3 sm:gap-6">
+              <section id="today" className="min-w-0 scroll-mt-4 rounded-[14px] border border-[#e8e6de] bg-white p-2.5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="font-serif text-[24px] font-semibold">Your chores</h2>
+                      <h2 className="font-serif text-[21px] font-semibold sm:text-[24px]">Your chores</h2>
                       <span className="rounded-full bg-[#f2eee4] px-2 py-1 text-[11px] font-bold text-[#967d54]">
                         {completed}/{chores.length} done
                       </span>
@@ -374,7 +374,7 @@ export default function Dashboard({
                     Add
                   </button>
                 </div>
-                <div className="mt-6 flex flex-col gap-2.5">
+                <div className="mt-3 flex flex-col gap-1.5 sm:mt-6 sm:gap-2.5">
                   {visibleChores.length === 0 && (
                     <div className="rounded-2xl border border-dashed border-[#e1ded3] bg-[#fdfcf9] px-4 py-10 text-center text-sm text-[#97a19b]">
                       Nothing here yet. Enjoy the calm.
@@ -424,11 +424,11 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-[#f2eee4] p-3 sm:rounded-[24px] sm:p-7">
+              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-[#f2eee4] p-2.5 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
-                    <h2 className="mt-1 font-serif text-[24px] font-semibold">A week at a glance</h2>
+                    <h2 className="mt-1 font-serif text-[21px] font-semibold sm:text-[24px]">A week at a glance</h2>
                   </div>
                   <button className="rounded-lg p-1.5 text-[#967d54] hover:bg-[#e7dfcf]" aria-label="Open calendar">
                     <CalendarDays className="size-[18px]" />
@@ -481,7 +481,7 @@ export default function Dashboard({
             </div>
 
             <div className="flex flex-col gap-6">
-              <section className="rounded-[18px] border border-[#e8e6de] bg-[#244c46] p-4 text-white sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
+              <section className="rounded-[14px] border border-[#e8e6de] bg-[#244c46] p-3 text-white sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[#b8d6ce]">
                     <Clock3 className="size-4" />
@@ -506,7 +506,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="meals" className="scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
+              <section id="meals" className="scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
@@ -516,7 +516,7 @@ export default function Dashboard({
                     Edit
                   </button>
                 </div>
-                <div className="mt-5 flex flex-col gap-4">
+                <div className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-4">
                   {meals.map((meal) => (
                     <div key={meal.slot} className="flex items-center gap-3">
                       <div
@@ -537,7 +537,7 @@ export default function Dashboard({
                 {editingMeals && <div className="mt-5 border-t border-[#e8e6de] pt-4"><div className="flex flex-col gap-3">{meals.map((meal) => <label key={meal.slot} className="text-xs font-bold uppercase tracking-wider text-[#87918a]">{meal.slot}<input value={mealDrafts[meal.slot] ?? ''} onChange={(e) => setMealDrafts((drafts) => ({ ...drafts, [meal.slot]: e.target.value }))} className="mt-1 h-10 w-full rounded-xl border border-[#e2e5df] px-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#5a9b8c]" placeholder="What are we having?" /></label>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setEditingMeals(false)} className="rounded-xl px-3 py-2 text-xs font-bold text-[#87918a]">Cancel</button><button onClick={saveMeals} disabled={pending || !isAdmin} className="rounded-xl bg-[#244c46] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Save meals</button></div>{!isAdmin && <p className="mt-2 text-xs text-[#b6775a]">Only an admin can edit the family meal plan.</p>}</div>}
               </section>
 
-              <section id="shopping" className="scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
+              <section id="shopping" className="scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f8e9df] text-[#b6775a]">
