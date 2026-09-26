@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'GharKeChore · Home, together',
+  title: 'GharKeChore · Kaam karo, kaamchori nahi.',
   description: 'A calm, shared space for family chores, meals and the week ahead.',
   generator: 'v0.app',
   applicationName: 'GharKeChore',

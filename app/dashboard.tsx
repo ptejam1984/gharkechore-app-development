@@ -228,7 +228,7 @@ export default function Dashboard({
           <div className="flex items-center gap-3 px-2">
             <div>
               <div className="flex items-center gap-2.5"><img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-9 rounded-xl" /><div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div></div>
-              <div className="text-[11px] text-[#87918a]">home, together</div>
+              <div className="text-[11px] text-[#87918a]">Kaam karo, kaamchori nahi.</div>
             </div>
           </div>
           <div className="mt-12 flex flex-col gap-2">
