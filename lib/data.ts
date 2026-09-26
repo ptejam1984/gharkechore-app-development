@@ -7,6 +7,7 @@ export type Member = {
   avatar_key?: string
   theme?: 'system' | 'light' | 'dark'
   notifications_enabled?: boolean
+  google_calendar_connected?: boolean
 }
 
 export type ChoreItem = {
@@ -112,7 +113,7 @@ type DB = SupabaseClient
 export async function getMembers(supabase: DB): Promise<Member[]> {
   const { data } = await supabase
     .from('profiles')
-    .select('id, display_name, role, avatar_key, theme, notifications_enabled')
+    .select('id, display_name, role, avatar_key, theme, notifications_enabled, google_calendar_connected')
     .order('created_at', { ascending: true })
   return data ?? []
 }
