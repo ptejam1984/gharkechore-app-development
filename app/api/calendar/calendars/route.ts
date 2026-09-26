@@ -12,7 +12,7 @@ export async function GET() {
   const { data: profile } = await supabase.from('profiles').select('role, google_calendar_connected').eq('id', user.id).single()
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   try {
-    const token = await getToken(CONNECTOR, { subject: { type: 'user', id: user.id, issuer: 'supabase' }, scopes: [SCOPE] })
+    const token = await getToken(CONNECTOR, { subject: { type: 'user', id: user.id }, scopes: [SCOPE] })
     const response = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList?minAccessRole=writer', { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' })
     if (!response.ok) return NextResponse.json({ error: `Google Calendar returned ${response.status}: ${(await response.text()).slice(0, 240)}` }, { status: 502 })
     const data = await response.json() as { items?: Array<{ id: string; summary: string; primary?: boolean; accessRole?: string }> }
