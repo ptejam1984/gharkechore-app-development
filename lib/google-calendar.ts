@@ -27,7 +27,10 @@ export async function createCalendarEvent(userId: string, calendarId: string, in
       reminders: { useDefault: true },
     }),
   })
-  if (!response.ok) throw new Error(`Google Calendar event failed: ${response.status}`)
+  if (!response.ok) {
+    const details = await response.text()
+    throw new Error(`Google Calendar event failed: ${response.status} ${details.slice(0, 300)}`)
+  }
   const event = await response.json() as { id?: string }
   return event.id ?? null
 }

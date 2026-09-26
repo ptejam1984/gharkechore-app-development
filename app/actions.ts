@@ -77,7 +77,7 @@ export async function addChore(input: {
 
   const [{ data: assignee }, { data: admin }] = await Promise.all([
     supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single(),
-    supabase.from('profiles').select('family_calendar_id, google_calendar_connected').eq('role', 'admin').limit(1).maybeSingle(),
+    supabase.from('profiles').select('id, family_calendar_id, google_calendar_connected').eq('role', 'admin').limit(1).maybeSingle(),
   ])
   if (assignee?.google_calendar_connected || admin?.family_calendar_id) {
     for (const occurrence of occurrences ?? []) {
@@ -85,7 +85,7 @@ export async function addChore(input: {
         const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
         const [personalEventId, familyEventId] = await Promise.all([
           assignee?.google_calendar_connected ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
-          admin?.family_calendar_id && admin.google_calendar_connected ? createCalendarEvent(user.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
+          admin?.id && admin.family_calendar_id && admin.google_calendar_connected ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
         ])
         await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId }).eq('id', occurrence.id)
       } catch (error) {
