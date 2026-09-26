@@ -87,10 +87,12 @@ export async function addChore(input: {
           assignee?.google_calendar_connected ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
           admin?.id && admin.family_calendar_id ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
         ])
-        const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId }).eq('id', occurrence.id)
+        const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId, google_calendar_sync_error: null, google_calendar_synced_at: new Date().toISOString() }).eq('id', occurrence.id)
         if (syncError) throw syncError
       } catch (error) {
-        console.error('[v0] Google Calendar task sync failed:', error)
+        const message = error instanceof Error ? error.message : 'Google Calendar sync failed'
+        console.error('[v0] Google Calendar task sync failed:', message)
+        await supabase.from('chore_occurrences').update({ google_calendar_sync_error: message.slice(0, 500), google_calendar_synced_at: null }).eq('id', occurrence.id)
         // Calendar sync is best-effort: the chore must still be created when a
         // provider authorization has expired or the selected calendar is unavailable.
       }
