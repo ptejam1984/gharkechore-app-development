@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Bell,
   CalendarDays,
@@ -146,6 +147,7 @@ export default function Dashboard({
   const [editingMeals, setEditingMeals] = useState(false)
   const [mealDrafts, setMealDrafts] = useState<Record<string, string>>({})
   const [pending, startTransition] = useTransition()
+  const router = useRouter()
 
   const isAdmin = profile.role === 'admin'
   const initial = profile.display_name.charAt(0).toUpperCase()
@@ -206,6 +208,7 @@ export default function Dashboard({
     startTransition(async () => {
       for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', null)
       setEditingMeals(false)
+      router.refresh()
     })
   }
 
