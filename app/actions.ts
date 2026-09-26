@@ -163,7 +163,8 @@ export async function saveFamilyCalendar(calendarId: string) {
   const { supabase, user } = await requireUser()
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin' || !calendarId.trim()) return
-  await supabase.from('profiles').update({ family_calendar_id: calendarId.trim() }).eq('id', user.id)
+  const { error } = await supabase.from('profiles').update({ family_calendar_id: calendarId.trim() }).eq('id', user.id)
+  if (error) throw new Error(`Unable to save family calendar: ${error.message}`)
   revalidatePath('/admin')
 }
 

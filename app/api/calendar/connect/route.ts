@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   const authorization = await startAuthorization(CONNECTOR, {
     subject: { type: 'user', id: user.id },
     scopes: SCOPES,
-  }, { callbackUrl })
+  }, { callbackUrl, prompt: 'consent' })
 
   return NextResponse.redirect(authorization.url)
 }
