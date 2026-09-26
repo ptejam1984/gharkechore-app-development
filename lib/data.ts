@@ -212,6 +212,9 @@ export async function seedStarterData(supabase: DB, adminId: string, today: Date
   const { count } = await supabase.from('chore_templates').select('id', { count: 'exact', head: true })
   if ((count ?? 0) > 0) return
 
+  const { data: members } = await supabase.from('profiles').select('id').order('created_at', { ascending: true })
+  const assignees = (members ?? []).map((member) => member.id)
+
   const { data: templates } = await supabase
     .from('chore_templates')
     .insert(
@@ -229,13 +232,14 @@ export async function seedStarterData(supabase: DB, adminId: string, today: Date
 
   if (templates && templates.length > 0) {
     const todayIso = iso(today)
-    await supabase.from('chore_occurrences').insert(
-      templates.map((t: any) => ({
-        template_id: t.id,
-        assigned_to: adminId,
+    const occurrenceRows = templates.flatMap((template: any) =>
+      (assignees.length > 0 ? assignees : [adminId]).map((assigneeId) => ({
+        template_id: template.id,
+        assigned_to: assigneeId,
         occurrence_date: todayIso,
       })),
     )
+    await supabase.from('chore_occurrences').insert(occurrenceRows)
   }
 
   const start = weekStart(today)

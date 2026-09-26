@@ -16,6 +16,15 @@ async function requireUser() {
 
 export async function toggleOccurrence(occurrenceId: string, done: boolean) {
   const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: occurrence } = await supabase
+    .from('chore_occurrences')
+    .select('assigned_to')
+    .eq('id', occurrenceId)
+    .single()
+
+  if (!occurrence || (profile?.role !== 'admin' && occurrence.assigned_to !== user.id)) return
+
   await supabase
     .from('chore_occurrences')
     .update({
