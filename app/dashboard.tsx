@@ -355,7 +355,7 @@ export default function Dashboard({
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex flex-col gap-6">
-              <section id="today" className="min-w-0 scroll-mt-4 rounded-[22px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
+              <section id="today" className="min-w-0 scroll-mt-4 rounded-[18px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
+              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-[#f2eee4] p-3 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
@@ -435,7 +435,7 @@ export default function Dashboard({
                   </button>
                 </div>
                 <div className="mt-5 min-w-0 overflow-x-auto overscroll-x-contain pb-1">
-                  <div className="grid min-w-[448px] grid-cols-7 gap-1.5 sm:min-w-0 sm:gap-2">
+                  <div className="grid min-w-0 grid-cols-7 gap-1 sm:gap-2">
                   {week.map((item) => (
                     <button
                       key={item.iso}
@@ -481,14 +481,14 @@ export default function Dashboard({
             </div>
 
             <div className="flex flex-col gap-6">
-              <section className="rounded-[24px] border border-[#e8e6de] bg-[#244c46] p-6 text-white shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
+              <section className="rounded-[18px] border border-[#e8e6de] bg-[#244c46] p-4 text-white sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[#b8d6ce]">
                     <Clock3 className="size-4" />
                     <span className="text-xs font-bold uppercase tracking-[0.15em]">Next up</span>
                   </div>
                 </div>
-                <h2 className="mt-5 font-serif text-[26px] font-semibold">{nextUp?.title ?? 'All done for today'}</h2>
+                <h2 className="mt-3 font-serif text-[22px] font-semibold sm:mt-5 sm:text-[26px]">{nextUp?.title ?? 'All done for today'}</h2>
                 <p className="mt-1 text-sm text-[#b8d6ce]">
                   {nextUp ? `${nextUp.person} · ${nextUp.time}` : 'A calm reset for the evening ahead.'}
                 </p>
@@ -506,7 +506,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="meals" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+              <section id="meals" className="scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
@@ -537,7 +537,7 @@ export default function Dashboard({
                 {editingMeals && <div className="mt-5 border-t border-[#e8e6de] pt-4"><div className="flex flex-col gap-3">{meals.map((meal) => <label key={meal.slot} className="text-xs font-bold uppercase tracking-wider text-[#87918a]">{meal.slot}<input value={mealDrafts[meal.slot] ?? ''} onChange={(e) => setMealDrafts((drafts) => ({ ...drafts, [meal.slot]: e.target.value }))} className="mt-1 h-10 w-full rounded-xl border border-[#e2e5df] px-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#5a9b8c]" placeholder="What are we having?" /></label>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setEditingMeals(false)} className="rounded-xl px-3 py-2 text-xs font-bold text-[#87918a]">Cancel</button><button onClick={saveMeals} disabled={pending || !isAdmin} className="rounded-xl bg-[#244c46] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Save meals</button></div>{!isAdmin && <p className="mt-2 text-xs text-[#b6775a]">Only an admin can edit the family meal plan.</p>}</div>}
               </section>
 
-              <section id="shopping" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+              <section id="shopping" className="scroll-mt-6 rounded-[18px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f8e9df] text-[#b6775a]">
