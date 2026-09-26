@@ -8,6 +8,7 @@ export type Member = {
   theme?: 'system' | 'light' | 'dark'
   notifications_enabled?: boolean
   google_calendar_connected?: boolean
+  family_calendar_id?: string | null
 }
 
 export type ChoreItem = {
