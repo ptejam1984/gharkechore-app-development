@@ -18,6 +18,8 @@ export async function GET() {
     const data = await response.json() as { items?: Array<{ id: string; summary: string; primary?: boolean; accessRole?: string }> }
     return NextResponse.json({ calendars: (data.items ?? []).map(({ id, summary, primary, accessRole }) => ({ id, summary, primary, accessRole })) })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unable to load calendars' }, { status: 502 })
+    const message = error instanceof Error ? error.message : 'Unable to load calendars'
+    const requiresAuthorization = message.toLowerCase().includes('authorization required') || message.toLowerCase().includes('authorize')
+    return NextResponse.json({ error: message, requiresAuthorization }, { status: requiresAuthorization ? 401 : 502 })
   }
 }
