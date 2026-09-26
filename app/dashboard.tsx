@@ -228,7 +228,7 @@ export default function Dashboard({
               <Flower2 className="size-5" />
             </div>
             <div>
-              <div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div>
+              <div className="flex items-center gap-2.5"><img src="/gharke-chore-brand.png" alt="" className="size-9 rounded-xl" /><div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div></div>
               <div className="text-[11px] text-[#87918a]">home, together</div>
             </div>
           </div>

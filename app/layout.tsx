@@ -13,12 +13,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
   },
   icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/gharke-chore-icon.png', type: 'image/png' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-touch-icon.png',
+    icon: [{ url: '/gharke-chore-brand.png', type: 'image/png' }],
+    shortcut: ['/gharke-chore-brand.png'],
+    apple: '/gharke-chore-brand.png',
   },
 }
 
