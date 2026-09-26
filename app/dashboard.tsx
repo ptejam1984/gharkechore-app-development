@@ -297,13 +297,16 @@ export default function Dashboard({
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 px-5 pb-10 sm:px-8 lg:px-12">
-          <header className="flex items-center justify-between py-6 lg:py-8">
-            <div className="flex items-center gap-3 lg:hidden">
-              <button className="rounded-lg p-2 hover:bg-[#efeee7]" aria-label="Open menu">
+        <section className="min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-12">
+          <header className="flex items-center justify-between py-4 sm:py-6 lg:py-8">
+            <div className="flex items-center gap-2.5 lg:hidden">
+              <button className="flex size-11 items-center justify-center rounded-xl hover:bg-[#efeee7]" aria-label="Open menu">
                 <Menu className="size-5" />
               </button>
-              <span className="font-serif text-xl font-semibold">GharKeChore</span>
+              <div className="flex items-center gap-2">
+                <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-8 rounded-lg" />
+                <span className="font-serif text-lg font-semibold">GharKeChore</span>
+              </div>
             </div>
             <div className="hidden lg:block">
               <p className="text-sm font-medium text-[#87918a]">{dateLabel}</p>
@@ -313,7 +316,7 @@ export default function Dashboard({
             </div>
             <div className="flex items-center gap-2">
               <button
-                className="relative rounded-xl p-2.5 text-[#6f7973] hover:bg-[#efeee7]"
+                className="relative flex size-11 items-center justify-center rounded-xl text-[#6f7973] hover:bg-[#efeee7]"
                 aria-label="Notifications"
               >
                 <Bell className="size-[19px]" />
@@ -339,7 +342,7 @@ export default function Dashboard({
             </h1>
           </div>
 
-          <div className="mb-8 flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="-mx-4 mb-6 flex items-center gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:mb-8 sm:px-0">
             {filterNames.map((name, index) => (
               <button
                 key={name}
@@ -358,7 +361,7 @@ export default function Dashboard({
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex flex-col gap-6">
-              <section id="today" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:p-7">
+              <section id="today" className="scroll-mt-4 rounded-[22px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
