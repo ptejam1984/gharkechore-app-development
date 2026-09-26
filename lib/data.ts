@@ -38,6 +38,7 @@ export type WeekDay = {
   date: string
   iso: string
   tasks: number
+  taskItems: Array<{ id: string; title: string; person: string; done: boolean }>
   meal: string | null
   isToday: boolean
 }
@@ -189,12 +190,16 @@ export async function getWeek(supabase: DB, today: Date): Promise<WeekDay[]> {
   const todayIso = iso(today)
 
   const [{ data: occ }, { data: meals }] = await Promise.all([
-    supabase.from('chore_occurrences').select('occurrence_date').gte('occurrence_date', startIso).lte('occurrence_date', endIso),
+    supabase.from('chore_occurrences').select('id, occurrence_date, status, template:chore_templates(title), assignee:profiles!chore_occurrences_assigned_to_fkey(display_name)').gte('occurrence_date', startIso).lte('occurrence_date', endIso),
     supabase.from('meals').select('meal_date, dish_name').eq('slot', 'dinner').gte('meal_date', startIso).lte('meal_date', endIso),
   ])
 
-  const counts = new Map<string, number>()
-  for (const row of occ ?? []) counts.set(row.occurrence_date, (counts.get(row.occurrence_date) ?? 0) + 1)
+  const tasksByDay = new Map<string, Array<{ id: string; title: string; person: string; done: boolean }>>()
+  for (const row of occ ?? []) {
+    const list = tasksByDay.get(row.occurrence_date) ?? []
+    list.push({ id: row.id, title: row.template?.[0]?.title ?? 'Task', person: row.assignee?.[0]?.display_name ?? 'Unassigned', done: row.status === 'done' })
+    tasksByDay.set(row.occurrence_date, list)
+  }
   const dinners = new Map<string, string>()
   for (const row of meals ?? []) if (row.dish_name) dinners.set(row.meal_date, row.dish_name)
 
@@ -205,8 +210,9 @@ export async function getWeek(supabase: DB, today: Date): Promise<WeekDay[]> {
       day: new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(d).toUpperCase(),
       date: String(d.getDate()),
       iso: key,
-      tasks: counts.get(key) ?? 0,
-      meal: dinners.get(key) ?? null,
+  taskItems: (tasksByDay.get(key) ?? []).sort((a, b) => Number(a.done) - Number(b.done)),
+  tasks: tasksByDay.get(key)?.length ?? 0,
+  meal: dinners.get(key) ?? null,
       isToday: key === todayIso,
     }
   })

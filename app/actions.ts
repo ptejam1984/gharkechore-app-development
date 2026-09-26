@@ -80,6 +80,16 @@ export async function addOneOffChore(title: string) {
   return addChore({ title, assigneeId: '', frequency: 'once', date: iso(londonToday()) })
 }
 
+export async function updateMeal(slot: 'breakfast' | 'lunch' | 'dinner', dish: string, responsibleId: string | null) {
+  const { supabase, user } = await requireUser()
+  const cleanDish = dish.trim().slice(0, 160) || null
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (!profile || profile.role !== 'admin') return
+  const mealDate = iso(londonToday())
+  await supabase.from('meals').upsert({ meal_date: mealDate, slot, dish_name: cleanDish, responsible_id: responsibleId || null }, { onConflict: 'meal_date,slot' })
+  revalidatePath('/')
+}
+
 export async function addShoppingItem(label: string, quantity?: string) {
   const clean = label.trim()
   if (!clean) return
