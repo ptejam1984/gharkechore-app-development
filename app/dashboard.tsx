@@ -297,7 +297,7 @@ export default function Dashboard({
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-12">
+        <section className="min-w-0 w-full max-w-full flex-1 overflow-hidden px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-12">
           <header className="flex items-center justify-between py-4 sm:py-6 lg:py-8">
             <div className="flex min-w-0 items-center gap-2.5 lg:hidden">
               <button className="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-[#efeee7]" aria-label="Open menu">
@@ -353,9 +353,9 @@ export default function Dashboard({
             ))}
           </div>
 
-          <div className="min-w-0 grid gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+          <div className="grid min-w-0 grid-cols-1 gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex min-w-0 flex-col gap-3 sm:gap-6">
-              <section id="today" className="min-w-0 scroll-mt-4 rounded-[14px] border border-[#e8e6de] bg-white p-2.5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
+              <section id="today" className="w-full max-w-full min-w-0 scroll-mt-4 rounded-[14px] border border-[#e8e6de] bg-white p-2.5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-[#f2eee4] p-2.5 sm:rounded-[24px] sm:p-7">
+              <section id="this-week" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-[#f2eee4] p-2.5 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
@@ -481,7 +481,7 @@ export default function Dashboard({
             </div>
 
             <div className="flex flex-col gap-6">
-              <section className="rounded-[14px] border border-[#e8e6de] bg-[#244c46] p-3 text-white sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
+              <section className="w-full max-w-full min-w-0 overflow-hidden rounded-[14px] border border-[#e8e6de] bg-[#244c46] p-3 text-white sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-[#b8d6ce]">
                     <Clock3 className="size-4" />
@@ -506,7 +506,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="meals" className="scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
+              <section id="meals" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
@@ -518,7 +518,7 @@ export default function Dashboard({
                 </div>
                 <div className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-4">
                   {meals.map((meal) => (
-                    <div key={meal.slot} className="flex min-w-0 items-center gap-2 sm:gap-3">
+                    <div key={meal.slot} className="flex min-w-0 max-w-full items-center gap-2 sm:gap-3">
                       <div
                         className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${mealTones[meal.slot]}`}
                       >
@@ -537,7 +537,7 @@ export default function Dashboard({
                 {editingMeals && <div className="mt-5 border-t border-[#e8e6de] pt-4"><div className="flex flex-col gap-3">{meals.map((meal) => <label key={meal.slot} className="text-xs font-bold uppercase tracking-wider text-[#87918a]">{meal.slot}<input value={mealDrafts[meal.slot] ?? ''} onChange={(e) => setMealDrafts((drafts) => ({ ...drafts, [meal.slot]: e.target.value }))} className="mt-1 h-10 w-full rounded-xl border border-[#e2e5df] px-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#5a9b8c]" placeholder="What are we having?" /></label>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setEditingMeals(false)} className="rounded-xl px-3 py-2 text-xs font-bold text-[#87918a]">Cancel</button><button onClick={saveMeals} disabled={pending || !isAdmin} className="rounded-xl bg-[#244c46] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Save meals</button></div>{!isAdmin && <p className="mt-2 text-xs text-[#b6775a]">Only an admin can edit the family meal plan.</p>}</div>}
               </section>
 
-              <section id="shopping" className="scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
+              <section id="shopping" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f8e9df] text-[#b6775a]">
