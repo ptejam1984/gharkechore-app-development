@@ -9,11 +9,6 @@ import {
   Check,
   ChevronRight,
   ClipboardList,
-  Leaf,
-  Moon,
-  Star,
-  Sun,
-  UserRound,
   Clock3,
   CookingPot,
   Home,
@@ -46,7 +41,6 @@ const personTones: Record<string, string> = {
 }
 
 const tonePool = ['mint', 'peach', 'lavender', 'sand']
-const avatarIcons = { leaf: Leaf, sun: Sun, moon: Moon, flower: Star, star: Star, home: UserRound }
 
 const mealTones: Record<string, string> = {
   breakfast: 'bg-[#f3ecdc]',
@@ -162,8 +156,7 @@ export default function Dashboard({
   }, [profile.theme])
 
   const isAdmin = profile.role === 'admin'
-  const AvatarIcon = avatarIcons[(profile.avatar_key ?? 'leaf') as keyof typeof avatarIcons] ?? Leaf
-
+  
   const filterNames = useMemo(() => ['Everyone', ...members.map((m) => m.display_name)], [members])
   const completed = useMemo(() => chores.filter((c) => c.done).length, [chores])
   const visibleChores =
@@ -301,9 +294,6 @@ export default function Dashboard({
                 </Link>
               )}
             <div className="mt-4 flex items-center gap-3 border-t border-[#e5e3db] px-2 pt-5">
-<div className="flex size-9 items-center justify-center rounded-full bg-[#b8d6ce] text-[#294c47]">
-                  <AvatarIcon className="size-4" />
-                </div>
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold">{profile.display_name}</div>
                 <div className="text-xs capitalize text-[#87918a]">{profile.role}</div>
@@ -407,9 +397,6 @@ export default function Dashboard({
                 onClick={() => startTransition(() => signOut())}
                 className="flex h-11 items-center gap-2 rounded-xl border border-[#e5e3db] bg-white px-2.5 py-2 text-sm font-semibold shadow-sm sm:px-3"
               >
-                <div className="flex size-6 items-center justify-center rounded-full bg-[#b8d6ce] text-[#294c47]">
-                  <AvatarIcon className="size-3.5" />
-                </div>
                 <span className="hidden sm:inline">{profile.display_name}</span>
                 <LogOut className="size-4 text-[#87918a]" />
               </button>

@@ -2,23 +2,13 @@
 
 import Link from 'next/link'
 import { useEffect, useState, useTransition } from 'react'
-import { ArrowLeft, Check, Leaf, Moon, Palette, Save, Star, Sun, UserRound } from 'lucide-react'
+import { ArrowLeft, Palette, Save, UserRound } from 'lucide-react'
 import { updateProfilePreferences } from '@/app/actions'
 import { CalendarDays } from 'lucide-react'
 import type { Member } from '@/lib/data'
 
-const avatars = [
-  { key: 'leaf', label: 'Leaf', icon: Leaf, className: 'bg-[#dceee5] text-[#35665c]' },
-  { key: 'sun', label: 'Sun', icon: Sun, className: 'bg-[#f4e4bd] text-[#9a7334]' },
-  { key: 'moon', label: 'Moon', icon: Moon, className: 'bg-[#dfe3f4] text-[#56618e]' },
-  { key: 'flower', label: 'Flower', icon: Star, className: 'bg-[#f2dce5] text-[#9a5272]' },
-  { key: 'star', label: 'Star', icon: Star, className: 'bg-[#e8dfc9] text-[#806833]' },
-  { key: 'home', label: 'Home', icon: UserRound, className: 'bg-[#d9e8ed] text-[#466f7d]' },
-]
-
 export default function SettingsClient({ member }: { member: Member }) {
   const [displayName, setDisplayName] = useState(member.display_name)
-  const [avatarKey, setAvatarKey] = useState(member.avatar_key ?? 'leaf')
   const [theme, setTheme] = useState<'system' | 'light' | 'dark'>(member.theme ?? 'system')
   const [message, setMessage] = useState('')
   const [pending, startTransition] = useTransition()
@@ -33,7 +23,6 @@ export default function SettingsClient({ member }: { member: Member }) {
     startTransition(async () => {
       await updateProfilePreferences({
         displayName,
-        avatarKey,
         theme,
         notificationsEnabled: Boolean(member.notifications_enabled),
       })
@@ -57,7 +46,6 @@ export default function SettingsClient({ member }: { member: Member }) {
         <section className="mt-8 rounded-[28px] border border-[#e5e3db] bg-white p-6 shadow-[0_10px_30px_rgba(54,67,61,0.05)]">
           <div className="flex items-center gap-3"><UserRound className="size-5 text-[#5a8177]" /><h2 className="text-lg font-bold">Profile</h2></div>
           <label className="mt-6 block text-sm font-bold text-[#52615a]">Display name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={100} className="mt-2 h-12 w-full rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 font-normal outline-none focus:border-[#5a9b8c]" /></label>
-          <div className="mt-6"><p className="text-sm font-bold text-[#52615a]">Choose an avatar</p><div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">{avatars.map(({ key, label, icon: Icon, className }) => <button type="button" key={key} onClick={() => setAvatarKey(key)} className={`flex flex-col items-center gap-2 rounded-2xl border-2 p-3 transition ${avatarKey === key ? 'border-[#5a9b8c] bg-[#f0f7f2]' : 'border-transparent bg-[#f7f7f2] hover:border-[#d9e7df]'}`}><span className={`flex size-12 items-center justify-center rounded-full ${className}`}><Icon className="size-6" /></span><span className="text-xs font-semibold text-[#6f7973]">{label}</span></button>)}</div></div>
         </section>
 
         <section className="mt-5 rounded-[28px] border border-[#e5e3db] bg-white p-6 shadow-[0_10px_30px_rgba(54,67,61,0.05)]">
