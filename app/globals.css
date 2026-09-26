@@ -153,6 +153,28 @@
   }
 }
 
+.dark body {
+  background-color: #18231f;
+  color: #edf4ef;
+}
+
+.dark body [class*="bg-white"] {
+  background-color: #24332e !important;
+}
+
+.dark body [class*="text-[#263a35]"],
+.dark body [class*="text-[#244c46]"],
+.dark body [class*="text-[#493d2d]"],
+.dark body [class*="text-[#3f4b46]"] {
+  color: #edf4ef !important;
+}
+
+.dark body [class*="border-[#e5e3db]"],
+.dark body [class*="border-[#e8e6de]"],
+.dark body [class*="border-[#eeede7]"] {
+  border-color: #3d5149 !important;
+}
+
 @layer base {
   *,
   *::before,
