@@ -1,7 +1,7 @@
 import { getToken } from '@vercel/connect'
 
 const CONNECTOR = 'google/gharkechore-family-calendar'
-const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events'
+const CALENDAR_SCOPES = ['https://www.googleapis.com/auth/calendar.events', 'https://www.googleapis.com/auth/calendar.readonly']
 
 type CalendarEventInput = {
   title: string
@@ -12,7 +12,7 @@ type CalendarEventInput = {
 export async function createCalendarEvent(userId: string, calendarId: string, input: CalendarEventInput) {
   const token = await getToken(CONNECTOR, {
     subject: { type: 'user', id: userId },
-    scopes: [CALENDAR_SCOPE],
+    scopes: CALENDAR_SCOPES,
   })
   const start = input.dueAt ? new Date(input.dueAt) : new Date(`${input.date}T09:00:00+01:00`)
   const end = new Date(start.getTime() + 30 * 60 * 1000)
