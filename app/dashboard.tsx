@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState, useTransition } from 'react'
 import {
   Bell,
@@ -157,15 +158,13 @@ export default function Dashboard({
           </div>
           <div className="mt-auto flex flex-col gap-2">
             {isAdmin && (
-              <button
-                onClick={() => setActiveNav('Admin')}
-                className={`flex h-11 items-center gap-3 rounded-xl px-3 text-left text-sm ${
-                  activeNav === 'Admin' ? 'bg-[#e8f0eb] font-semibold text-[#244c46]' : 'text-[#6f7973]'
-                }`}
+              <Link
+                href="/admin"
+                className="flex h-11 items-center gap-3 rounded-xl px-3 text-left text-sm text-[#6f7973] hover:bg-[#f0efe8]"
               >
                 <Settings2 className="size-[18px]" />
                 Admin
-              </button>
+              </Link>
             )}
             <div className="mt-4 flex items-center gap-3 border-t border-[#e5e3db] px-2 pt-5">
               <div className="flex size-9 items-center justify-center rounded-full bg-[#b8d6ce] text-xs font-bold text-[#294c47]">
