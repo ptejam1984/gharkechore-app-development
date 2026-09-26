@@ -107,7 +107,7 @@ export default function Dashboard({
   const [newChore, setNewChore] = useState('')
   const [taskAssignee, setTaskAssignee] = useState(profile.id)
   const [taskFrequency, setTaskFrequency] = useState<'once' | 'daily' | 'weekly'>('once')
-  const [taskDate, setTaskDate] = useState(new Date().toISOString().slice(0, 10))
+  const [taskDate, setTaskDate] = useState(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date()))
   const [taskTime, setTaskTime] = useState('')
   const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
