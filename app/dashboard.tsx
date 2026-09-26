@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Bell,
   CalendarDays,
@@ -10,7 +11,6 @@ import {
   ClipboardList,
   Clock3,
   CookingPot,
-  Flower2,
   Home,
   LogOut,
   Menu,
@@ -147,6 +147,7 @@ export default function Dashboard({
   const [editingMeals, setEditingMeals] = useState(false)
   const [mealDrafts, setMealDrafts] = useState<Record<string, string>>({})
   const [pending, startTransition] = useTransition()
+  const router = useRouter()
 
   const isAdmin = profile.role === 'admin'
   const initial = profile.display_name.charAt(0).toUpperCase()
@@ -207,6 +208,7 @@ export default function Dashboard({
     startTransition(async () => {
       for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', null)
       setEditingMeals(false)
+      router.refresh()
     })
   }
 
@@ -224,11 +226,8 @@ export default function Dashboard({
       <div className="mx-auto flex min-h-screen max-w-[1440px]">
         <aside className="hidden w-[248px] shrink-0 border-r border-[#e5e3db] bg-[#fbfaf6] px-5 py-7 lg:flex lg:flex-col">
           <div className="flex items-center gap-3 px-2">
-            <div className="flex size-10 items-center justify-center rounded-[14px] bg-[#244c46] text-[#f4e4c8]">
-              <Flower2 className="size-5" />
-            </div>
             <div>
-              <div className="flex items-center gap-2.5"><img src="/gharke-chore-brand.png" alt="" className="size-9 rounded-xl" /><div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div></div>
+              <div className="flex items-center gap-2.5"><img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-9 rounded-xl" /><div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div></div>
               <div className="text-[11px] text-[#87918a]">home, together</div>
             </div>
           </div>
