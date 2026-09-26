@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay } from '@/lib/data'
 import {
-  addOneOffChore,
+  addChore,
   addShoppingItem,
   removeShoppingItem,
   signOut,
@@ -76,6 +76,10 @@ export default function Dashboard({
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
   const [showAdd, setShowAdd] = useState(false)
   const [newChore, setNewChore] = useState('')
+  const [taskAssignee, setTaskAssignee] = useState(profile.id)
+  const [taskFrequency, setTaskFrequency] = useState<'once' | 'daily' | 'weekly'>('once')
+  const [taskDate, setTaskDate] = useState(new Date().toISOString().slice(0, 10))
+  const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
   const [pending, startTransition] = useTransition()
 
@@ -101,7 +105,7 @@ export default function Dashboard({
     const title = newChore.trim()
     if (!title) return
     startTransition(async () => {
-      await addOneOffChore(title)
+      await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, weekdays: taskDays })
       setNewChore('')
       setShowAdd(false)
     })
@@ -257,15 +261,13 @@ export default function Dashboard({
                     </div>
                     <p className="mt-1 text-sm text-[#87918a]">A little at a time makes a home.</p>
                   </div>
-                  {isAdmin && (
-                    <button
-                      onClick={() => setShowAdd(true)}
-                      className="flex items-center gap-1.5 rounded-xl bg-[#edf3ef] px-3 py-2 text-xs font-bold text-[#244c46] hover:bg-[#e2eee7]"
-                    >
-                      <Plus className="size-4" />
-                      Add
-                    </button>
-                  )}
+                  <button
+                    onClick={() => setShowAdd(true)}
+                    className="flex items-center gap-1.5 rounded-xl bg-[#edf3ef] px-3 py-2 text-xs font-bold text-[#244c46] hover:bg-[#e2eee7]"
+                  >
+                    <Plus className="size-4" />
+                    Add
+                  </button>
                 </div>
                 <div className="mt-6 flex flex-col gap-2.5">
                   {visibleChores.length === 0 && (
@@ -279,7 +281,7 @@ export default function Dashboard({
             return (
                       <div
                         key={task.occurrenceId}
-                        className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${
+                        className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${task.done ? 'chore-complete' : ''} ${
                           task.done ? 'border-[#e1eae4] bg-[#f7fbf8]' : 'border-[#eeede7] bg-[#fdfcf9]'
                         }`}
                       >
@@ -513,27 +515,22 @@ export default function Dashboard({
                 <X className="size-5" />
               </button>
             </div>
-            <p className="mt-2 text-sm text-[#87918a]">
-              This will be visible to the family and won&apos;t change recurring schedules.
-            </p>
+            <p className="mt-2 text-sm text-[#87918a]">Add it once, every day, or on selected weekdays.</p>
             <div className="mt-6 flex flex-col gap-3">
-              <input
-                value={newChore}
-                onChange={(e) => setNewChore(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) submitChore()
-                }}
-                autoFocus
-                className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]"
-                placeholder="What needs doing?"
-              />
-              <button
-                onClick={submitChore}
-                disabled={pending || !newChore.trim()}
-                className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Add chore
-              </button>
+              <input value={newChore} onChange={(e) => setNewChore(e.target.value)} autoFocus className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="What needs doing?" />
+              {isAdmin && <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">For who?
+                <select value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none">
+                  {members.map((member) => <option key={member.id} value={member.id}>{member.display_name}{member.id === profile.id ? ' (me)' : ''}</option>)}
+                </select>
+              </label>}
+              <div className="grid grid-cols-2 gap-2">
+                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">When?
+                  <select value={taskFrequency} onChange={(e) => setTaskFrequency(e.target.value as typeof taskFrequency)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none"><option value="once">One time</option><option value="daily">Every day</option><option value="weekly">Selected days</option></select>
+                </label>
+                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Start date<input type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
+              </div>
+              {taskFrequency === 'weekly' && <div className="flex flex-wrap gap-2">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day, index) => <button type="button" key={day} onClick={() => setTaskDays((days) => days.includes(index) ? days.filter((d) => d !== index) : [...days, index])} className={`rounded-full px-3 py-1.5 text-xs font-bold ${taskDays.includes(index) ? 'bg-[#244c46] text-white' : 'bg-[#f2f3ed] text-[#6f7973]'}`}>{day}</button>)}</div>}
+              <button onClick={submitChore} disabled={pending || !newChore.trim()} className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50">Add task</button>
             </div>
           </div>
         </div>

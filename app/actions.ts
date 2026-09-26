@@ -36,34 +36,41 @@ export async function toggleOccurrence(occurrenceId: string, done: boolean) {
   revalidatePath('/')
 }
 
-export async function addOneOffChore(title: string) {
-  const clean = title.trim()
-  if (!clean) return
+export async function addChore(input: {
+  title: string
+  assigneeId: string
+  frequency: 'once' | 'daily' | 'weekly'
+  date: string
+  weekdays?: number[]
+}) {
+  const clean = input.title.trim()
+  if (!clean || !input.date) return
   const { supabase, user } = await requireUser()
-
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') return
+  const assigneeId = profile?.role === 'admin' ? input.assigneeId : user.id
+  if (!assigneeId) return
 
-  const { data: template } = await supabase
-    .from('chore_templates')
-    .insert({
-      title: clean,
-      frequency: 'on_demand',
-      active: true,
-      configuration_complete: true,
-      created_by: user.id,
-    })
-    .select('id')
-    .single()
+  const frequency = input.frequency === 'once' ? 'on_demand' : input.frequency
+  const { data: template } = await supabase.from('chore_templates').insert({
+    title: clean, frequency, active: true, configuration_complete: true, created_by: user.id,
+    weekday: input.frequency === 'weekly' ? (input.weekdays?.[0] ?? 1) : null,
+  }).select('id').single()
+  if (!template) return
 
-  if (template) {
-    await supabase.from('chore_occurrences').insert({
-      template_id: template.id,
-      assigned_to: user.id,
-      occurrence_date: iso(londonToday()),
-    })
+  const start = new Date(`${input.date}T00:00:00`)
+  const dates: string[] = []
+  const limit = input.frequency === 'once' ? 1 : 30
+  for (let i = 0; i < limit; i++) {
+    const day = new Date(start)
+    day.setDate(start.getDate() + i)
+    if (input.frequency === 'daily' || input.frequency === 'once' || (input.weekdays ?? []).includes(day.getDay())) dates.push(iso(day))
   }
+  await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({ template_id: template.id, assigned_to: assigneeId, occurrence_date: occurrenceDate })))
   revalidatePath('/')
+} 
+
+export async function addOneOffChore(title: string) {
+  return addChore({ title, assigneeId: '', frequency: 'once', date: iso(londonToday()) })
 }
 
 export async function addShoppingItem(label: string, quantity?: string) {
