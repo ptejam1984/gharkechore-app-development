@@ -37,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="min-w-0 w-full overflow-x-hidden bg-[#f8f7f2] antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

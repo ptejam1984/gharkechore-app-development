@@ -222,8 +222,8 @@ export default function Dashboard({
   }
 
   return (
-    <main className="min-h-screen bg-[#f8f7f2] text-[#27322f]">
-      <div className="mx-auto flex min-h-screen max-w-[1440px]">
+    <main className="min-h-screen w-full overflow-x-hidden bg-[#f8f7f2] text-[#27322f]">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1440px]">
         <aside className="hidden w-[248px] shrink-0 border-r border-[#e5e3db] bg-[#fbfaf6] px-5 py-7 lg:flex lg:flex-col">
           <div className="flex items-center gap-3 px-2">
             <div>
