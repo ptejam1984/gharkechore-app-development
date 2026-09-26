@@ -172,16 +172,84 @@ input {
   font: inherit;
 }
 
-.chore-complete {
-  animation: chore-complete 520ms cubic-bezier(.2,.8,.2,1);
+.chore-celebrating {
+  animation: chore-celebrating 1100ms cubic-bezier(.2,.9,.25,1);
+  overflow: visible;
 }
 
-@keyframes chore-complete {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(90, 155, 140, 0); }
-  45% { transform: scale(1.025); box-shadow: 0 0 0 8px rgba(90, 155, 140, 0.14); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(90, 155, 140, 0); }
+.chore-celebrating::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid rgba(90, 155, 140, 0.35);
+  border-radius: inherit;
+  content: '';
+  animation: celebration-ring 900ms ease-out forwards;
+  pointer-events: none;
+}
+
+.completion-spark {
+  position: absolute;
+  z-index: 2;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #d9b36c;
+  pointer-events: none;
+  animation: spark-fly 850ms ease-out forwards;
+}
+
+.completion-spark-one { left: 24px; top: 15px; }
+.completion-spark-two { left: 39px; top: 27px; background: #e6bfd0; animation-delay: 80ms; }
+.completion-spark-three { left: 18px; top: 38px; background: #b8d6ce; animation-delay: 140ms; }
+
+.completion-message {
+  position: absolute;
+  top: -12px;
+  left: 52px;
+  z-index: 3;
+  color: #397568;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  animation: message-float 1050ms ease-out forwards;
+  pointer-events: none;
+}
+
+.check-pop { animation: check-pop 520ms cubic-bezier(.2,1.4,.4,1); }
+
+@keyframes chore-celebrating {
+  0% { transform: scale(1); }
+  22% { transform: scale(1.018) translateY(-2px); }
+  52% { transform: scale(1.006); }
+  100% { transform: scale(1); }
+}
+
+@keyframes celebration-ring {
+  0% { opacity: .8; transform: scale(.98); }
+  100% { opacity: 0; transform: scale(1.035); }
+}
+
+@keyframes spark-fly {
+  0% { opacity: 0; transform: translate(0, 8px) scale(.4); }
+  25% { opacity: 1; }
+  100% { opacity: 0; transform: translate(30px, -24px) scale(1); }
+}
+
+@keyframes message-float {
+  0% { opacity: 0; transform: translateY(8px) scale(.92); }
+  18% { opacity: 1; transform: translateY(0) scale(1); }
+  72% { opacity: 1; transform: translateY(-3px) scale(1); }
+  100% { opacity: 0; transform: translateY(-11px) scale(.98); }
+}
+
+@keyframes check-pop {
+  0% { opacity: 0; transform: scale(.35) rotate(-15deg); }
+  65% { opacity: 1; transform: scale(1.18) rotate(0); }
+  100% { transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chore-complete { animation: none; }
+  .chore-celebrating, .chore-celebrating::after, .completion-spark, .completion-message, .check-pop { animation: none; }
+  .completion-message { opacity: 1; }
 }

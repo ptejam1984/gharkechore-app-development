@@ -80,6 +80,16 @@ export async function addOneOffChore(title: string) {
   return addChore({ title, assigneeId: '', frequency: 'once', date: iso(londonToday()) })
 }
 
+export async function updateMeal(slot: 'breakfast' | 'lunch' | 'dinner', dish: string, responsibleId: string | null) {
+  const { supabase, user } = await requireUser()
+  const cleanDish = dish.trim().slice(0, 160) || null
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (!profile || profile.role !== 'admin') return
+  const mealDate = iso(londonToday())
+  await supabase.from('meals').upsert({ meal_date: mealDate, slot, dish_name: cleanDish, responsible_id: responsibleId || null }, { onConflict: 'meal_date,slot' })
+  revalidatePath('/')
+}
+
 export async function addShoppingItem(label: string, quantity?: string) {
   const clean = label.trim()
   if (!clean) return
@@ -105,6 +115,24 @@ export async function removeShoppingItem(id: string) {
   const { supabase } = await requireUser()
   await supabase.from('shopping_items').delete().eq('id', id)
   revalidatePath('/')
+}
+
+export async function addCatalogTask(category: string, title: string) {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return
+  const cleanCategory = category.trim().slice(0, 80) || 'General'
+  const cleanTitle = title.trim().slice(0, 120)
+  if (!cleanTitle) return
+  await supabase.from('chore_templates').insert({
+    title: cleanTitle,
+    category: cleanCategory,
+    frequency: 'on_demand',
+    active: false,
+    configuration_complete: true,
+    created_by: user.id,
+  })
+  revalidatePath('/admin')
 }
 
 export async function updateProfilePreferences(input: {

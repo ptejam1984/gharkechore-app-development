@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import CatalogManager from './catalog-manager'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -17,13 +18,19 @@ export default async function AdminPage() {
 
   const [{ data: members }, { data: templates }, { data: occurrences }] = await Promise.all([
     supabase.from('profiles').select('id, display_name, role, visual_only, created_at').order('created_at'),
-    supabase.from('chore_templates').select('id, title, frequency, active, configuration_complete').order('created_at'),
+    supabase.from('chore_templates').select('id, title, category, frequency, active, configuration_complete').order('created_at'),
     supabase
       .from('chore_occurrences')
       .select('id, occurrence_date, status, assigned_to, template:chore_templates(title), assignee:profiles!chore_occurrences_assigned_to_fkey(display_name)')
       .order('occurrence_date', { ascending: false })
       .limit(50),
   ])
+
+  const catalog = (templates ?? []).reduce<Record<string, string[]>>((groups, template: any) => {
+    const category = template.category ?? 'General'
+    groups[category] = [...(groups[category] ?? []), template.title]
+    return groups
+  }, {})
 
   return (
     <main className="min-h-screen bg-[#f8f7f2] px-5 py-8 text-[#27322f] sm:px-8 lg:px-12">
@@ -59,6 +66,8 @@ export default async function AdminPage() {
             </div>
           </section>
         </div>
+
+        <CatalogManager initialCategories={catalog} />
 
         <section className="mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
           <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Recent chore status</h2><span className="text-sm text-[#87918a]">Last 50 occurrences</span></div>

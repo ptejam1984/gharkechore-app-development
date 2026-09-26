@@ -25,6 +25,7 @@ import {
 import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay } from '@/lib/data'
 import {
   addChore,
+  updateMeal,
   addShoppingItem,
   removeShoppingItem,
   signOut,
@@ -131,6 +132,8 @@ export default function Dashboard({
 }: Props) {
   const [activeNav, setActiveNav] = useState('Today')
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
+  const [selectedWeekDay, setSelectedWeekDay] = useState<string | null>(null)
+  const [celebratingId, setCelebratingId] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newChore, setNewChore] = useState('')
   const [taskSearch, setTaskSearch] = useState('')
@@ -141,6 +144,8 @@ export default function Dashboard({
   const [taskTime, setTaskTime] = useState('')
   const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
+  const [editingMeals, setEditingMeals] = useState(false)
+  const [mealDrafts, setMealDrafts] = useState<Record<string, string>>({})
   const [pending, startTransition] = useTransition()
 
   const isAdmin = profile.role === 'admin'
@@ -171,6 +176,10 @@ export default function Dashboard({
   function runToggleChore(item: ChoreItem) {
     const canEdit = isAdmin || item.personId === profile.id
     if (!canEdit) return
+    if (!item.done) {
+      setCelebratingId(item.occurrenceId)
+      window.setTimeout(() => setCelebratingId(null), 1150)
+    }
     startTransition(() => toggleOccurrence(item.occurrenceId, !item.done))
   }
 
@@ -186,6 +195,18 @@ export default function Dashboard({
       await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
       setNewChore('')
       setShowAdd(false)
+    })
+  }
+
+  function openMealEditor() {
+    setMealDrafts(Object.fromEntries(meals.map((meal) => [meal.slot, meal.dish ?? ''])))
+    setEditingMeals(true)
+  }
+
+  function saveMeals() {
+    startTransition(async () => {
+      for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', null)
+      setEditingMeals(false)
     })
   }
 
@@ -369,10 +390,16 @@ export default function Dashboard({
             return (
                       <div
                         key={task.occurrenceId}
-                        className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${task.done ? 'chore-complete' : ''} ${
+                        className={`group relative flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${celebratingId === task.occurrenceId ? 'chore-celebrating' : ''} ${
                           task.done ? 'border-[#e1eae4] bg-[#f7fbf8]' : 'border-[#eeede7] bg-[#fdfcf9]'
                         }`}
                       >
+                        {celebratingId === task.occurrenceId && <>
+                          <span className="completion-spark completion-spark-one" aria-hidden="true" />
+                          <span className="completion-spark completion-spark-two" aria-hidden="true" />
+                          <span className="completion-spark completion-spark-three" aria-hidden="true" />
+                          <span className="completion-message" role="status">Lovely work</span>
+                        </>}
                         <button
                 onClick={() => runToggleChore(task)}
                 disabled={pending || !canEdit}
@@ -384,7 +411,7 @@ export default function Dashboard({
                           }`}
                           aria-label={task.done ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
                         >
-                          <Check className="size-4" />
+                          <Check className={`size-4 ${celebratingId === task.occurrenceId ? 'check-pop' : ''}`} />
                         </button>
                         <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${tone}`}>
                           <ClipboardList className="size-[17px]" />
@@ -420,7 +447,7 @@ export default function Dashboard({
                   {week.map((item) => (
                     <button
                       key={item.iso}
-                      onClick={() => setActiveNav('This week')}
+                      onClick={() => setSelectedWeekDay(item.iso)}
                       className={`rounded-2xl border p-2 text-center transition sm:p-3 ${
                         item.isToday
                           ? 'border-[#244c46] bg-[#244c46] text-white shadow-md'
@@ -437,6 +464,13 @@ export default function Dashboard({
                     </button>
                   ))}
                 </div>
+                {selectedWeekDay && (() => {
+                  const selected = week.find((day) => day.iso === selectedWeekDay)
+                  return selected ? <div className="mt-5 rounded-2xl border border-[#e1d8c8] bg-[#f8f5ed] p-4">
+                    <div className="mb-3 flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-wider text-[#967d54]">Tasks for {selected.day} {selected.date}</p><button onClick={() => setSelectedWeekDay(null)} className="text-xs font-bold text-[#967d54]">Close</button></div>
+                    <div className="flex flex-col gap-2">{selected.taskItems.length ? selected.taskItems.map((task) => <div key={task.id} className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm ${task.done ? 'text-[#a1aaa4] line-through' : 'font-semibold text-[#3f4b46]'}`}><span>{task.title}</span><span className="text-xs font-normal no-underline">{task.person}</span></div>) : <p className="text-sm text-[#97a19b]">No tasks planned.</p>}</div>
+                  </div> : null
+                })()}
                 <div className="mt-5 flex items-center gap-3 border-t border-[#e1d8c8] pt-4">
                   <div className="flex size-9 items-center justify-center rounded-xl bg-[#e7dfcf] text-[#967d54]">
                     <Utensils className="size-4" />
@@ -485,7 +519,7 @@ export default function Dashboard({
                     <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
                     <p className="mt-1 text-xs text-[#87918a]">{dateLabel}</p>
                   </div>
-                  <button onClick={() => setActiveNav('Meals')} className="text-xs font-bold text-[#5a8177]">
+                  <button onClick={openMealEditor} className="text-xs font-bold text-[#5a8177]">
                     Edit
                   </button>
                 </div>
@@ -507,6 +541,7 @@ export default function Dashboard({
                     </div>
                   ))}
                 </div>
+                {editingMeals && <div className="mt-5 border-t border-[#e8e6de] pt-4"><div className="flex flex-col gap-3">{meals.map((meal) => <label key={meal.slot} className="text-xs font-bold uppercase tracking-wider text-[#87918a]">{meal.slot}<input value={mealDrafts[meal.slot] ?? ''} onChange={(e) => setMealDrafts((drafts) => ({ ...drafts, [meal.slot]: e.target.value }))} className="mt-1 h-10 w-full rounded-xl border border-[#e2e5df] px-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-[#5a9b8c]" placeholder="What are we having?" /></label>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setEditingMeals(false)} className="rounded-xl px-3 py-2 text-xs font-bold text-[#87918a]">Cancel</button><button onClick={saveMeals} disabled={pending || !isAdmin} className="rounded-xl bg-[#244c46] px-4 py-2 text-xs font-bold text-white disabled:opacity-50">Save meals</button></div>{!isAdmin && <p className="mt-2 text-xs text-[#b6775a]">Only an admin can edit the family meal plan.</p>}</div>}
               </section>
 
               <section id="shopping" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
