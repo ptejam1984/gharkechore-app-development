@@ -79,12 +79,12 @@ export async function addChore(input: {
     supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single(),
     supabase.from('profiles').select('id, family_calendar_id, google_calendar_connected').eq('role', 'admin').limit(1).maybeSingle(),
   ])
-  if (assignee?.google_calendar_connected || admin?.family_calendar_id) {
+  if (assigneeId || admin?.family_calendar_id) {
     for (const occurrence of occurrences ?? []) {
       const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
       try {
         const [personalResult, familyResult] = await Promise.allSettled([
-          assignee?.google_calendar_connected ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
+          assigneeId ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
           admin?.id && admin.family_calendar_id ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
         ])
         const personalEventId = personalResult.status === 'fulfilled' ? personalResult.value : null
