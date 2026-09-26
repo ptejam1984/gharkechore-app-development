@@ -60,6 +60,18 @@ export function iso(d: Date): string {
   return d.toISOString().slice(0, 10)
 }
 
+export function ukLocalDateTimeToIso(date: string, time: string) {
+  const [year, month, day] = date.split('-').map(Number)
+  const [hour, minute] = time.split(':').map(Number)
+  const target = Date.UTC(year, month - 1, day, hour, minute)
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date(target))
+  const value = (type: string) => Number(parts.find((part) => part.type === type)?.value)
+  const displayed = Date.UTC(value('year'), value('month') - 1, value('day'), value('hour'), value('minute'))
+  return new Date(target + (target - displayed)).toISOString()
+}
+
 export function addDays(d: Date, n: number): Date {
   const r = new Date(d)
   r.setDate(r.getDate() + n)
@@ -128,7 +140,7 @@ export async function getTodayChores(supabase: DB, day: string): Promise<ChoreIt
       person: row.assignee?.display_name ?? 'Unassigned',
       personId: row.assignee?.id ?? null,
       time,
-      dueAt: row.due_at ?? (dueTime ? `${row.occurrence_date}T${dueTime}` : null),
+      dueAt: row.due_at ?? (dueTime ? ukLocalDateTimeToIso(row.occurrence_date, dueTime) : null),
       done: row.status === 'done',
       status: row.status,
     }

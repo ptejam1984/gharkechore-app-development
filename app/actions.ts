@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { iso, londonToday } from '@/lib/data'
+import { iso, londonToday, ukLocalDateTimeToIso } from '@/lib/data'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -71,7 +71,7 @@ export async function addChore(input: {
     template_id: template.id,
     assigned_to: assigneeId,
     occurrence_date: occurrenceDate,
-    due_at: input.time ? `${occurrenceDate}T${input.time}:00+00:00` : null,
+    due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
   })))
   revalidatePath('/')
 } 
