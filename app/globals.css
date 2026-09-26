@@ -116,6 +116,10 @@
   --sidebar-ring: oklch(0.62 0.07 165);
 }
 
+.light {
+  color-scheme: light;
+}
+
 .dark {
   color-scheme: dark;
   --background: oklch(0.2 0.018 165);
@@ -185,10 +189,6 @@
     @apply bg-background text-foreground;
     font-family: Arial, Helvetica, sans-serif;
   }
-}
-
-:root {
-  color-scheme: light;
 }
 
 button,
