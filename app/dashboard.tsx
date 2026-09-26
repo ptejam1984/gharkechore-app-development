@@ -133,6 +133,7 @@ export default function Dashboard({
   const [activeNav, setActiveNav] = useState('Today')
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
   const [selectedWeekDay, setSelectedWeekDay] = useState<string | null>(null)
+  const [celebratingId, setCelebratingId] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newChore, setNewChore] = useState('')
   const [taskSearch, setTaskSearch] = useState('')
@@ -175,6 +176,10 @@ export default function Dashboard({
   function runToggleChore(item: ChoreItem) {
     const canEdit = isAdmin || item.personId === profile.id
     if (!canEdit) return
+    if (!item.done) {
+      setCelebratingId(item.occurrenceId)
+      window.setTimeout(() => setCelebratingId(null), 1150)
+    }
     startTransition(() => toggleOccurrence(item.occurrenceId, !item.done))
   }
 
@@ -385,10 +390,16 @@ export default function Dashboard({
             return (
                       <div
                         key={task.occurrenceId}
-                        className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${task.done ? 'chore-complete' : ''} ${
+                        className={`group relative flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${celebratingId === task.occurrenceId ? 'chore-celebrating' : ''} ${
                           task.done ? 'border-[#e1eae4] bg-[#f7fbf8]' : 'border-[#eeede7] bg-[#fdfcf9]'
                         }`}
                       >
+                        {celebratingId === task.occurrenceId && <>
+                          <span className="completion-spark completion-spark-one" aria-hidden="true" />
+                          <span className="completion-spark completion-spark-two" aria-hidden="true" />
+                          <span className="completion-spark completion-spark-three" aria-hidden="true" />
+                          <span className="completion-message" role="status">Lovely work</span>
+                        </>}
                         <button
                 onClick={() => runToggleChore(task)}
                 disabled={pending || !canEdit}
@@ -400,7 +411,7 @@ export default function Dashboard({
                           }`}
                           aria-label={task.done ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
                         >
-                          <Check className="size-4" />
+                          <Check className={`size-4 ${celebratingId === task.occurrenceId ? 'check-pop' : ''}`} />
                         </button>
                         <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${tone}`}>
                           <ClipboardList className="size-[17px]" />
