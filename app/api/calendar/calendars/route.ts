@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 const CONNECTOR = 'google/gharkechore-family-calendar'
-const SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
+const SCOPE = 'https://www.googleapis.com/auth/calendar.events'
 
 export async function GET() {
   const supabase = await createClient()
