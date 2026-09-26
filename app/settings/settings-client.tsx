@@ -16,6 +16,7 @@ export default function SettingsClient({ member }: { member: Member }) {
   useEffect(() => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
+    document.cookie = `gharke-theme=${theme}; path=/; max-age=31536000; samesite=lax`
     document.documentElement.classList.remove('dark', 'light')
     document.documentElement.classList.add(useDark ? 'dark' : 'light')
   }, [theme])
