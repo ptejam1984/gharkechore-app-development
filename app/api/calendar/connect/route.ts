@@ -22,7 +22,9 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(new URL('/auth/login', request.url))
 
-  const callbackUrl = `${await getCallbackOrigin()}/api/calendar/callback`
+  const requestedReturnTo = new URL(request.url).searchParams.get('returnTo')
+  const returnTo = requestedReturnTo === '/admin' ? '/admin' : '/settings'
+  const callbackUrl = `${await getCallbackOrigin()}/api/calendar/callback?returnTo=${encodeURIComponent(returnTo)}`
   const authorization = await startAuthorization(CONNECTOR, {
     subject: { type: 'user', id: user.id, issuer: 'supabase' },
     scopes: SCOPES,
