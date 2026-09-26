@@ -27,7 +27,7 @@ export async function GET(request: Request) {
   const returnTo = requestedReturnTo === '/admin' ? '/admin' : '/settings'
   const callbackUrl = `${await getCallbackOrigin()}/api/calendar/callback?returnTo=${encodeURIComponent(returnTo)}`
   const authorization = await startAuthorization(CONNECTOR, {
-    subject: { type: 'user', id: user.id, issuer: 'supabase' },
+    subject: { type: 'user', id: user.id },
     scopes: SCOPES,
   }, { callbackUrl })
 
