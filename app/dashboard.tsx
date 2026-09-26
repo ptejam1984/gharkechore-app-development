@@ -131,6 +131,7 @@ export default function Dashboard({
   greeting,
 }: Props) {
   const [activeNav, setActiveNav] = useState('Today')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
   const [selectedWeekDay, setSelectedWeekDay] = useState<string | null>(null)
   const [celebratingId, setCelebratingId] = useState<string | null>(null)
@@ -297,15 +298,80 @@ export default function Dashboard({
           </div>
         </aside>
 
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation menu">
+            <button
+              type="button"
+              className="absolute inset-0 bg-[#27322f]/30"
+              aria-label="Close menu"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <aside className="relative flex h-full w-[min(82vw,280px)] flex-col bg-[#fbfaf6] px-5 py-6 shadow-2xl">
+              <div className="flex items-start justify-between gap-3 px-2">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-9 rounded-xl" />
+                    <div className="font-serif text-xl font-semibold">GharKeChore</div>
+                  </div>
+                  <div className="mt-1 text-[11px] text-[#87918a]">Kaam karo, kaamchori nahi.</div>
+                </div>
+                <button type="button" onClick={() => setMobileMenuOpen(false)} className="flex size-10 items-center justify-center rounded-xl hover:bg-[#f0efe8]" aria-label="Close menu">
+                  <X className="size-5" />
+                </button>
+              </div>
+              <nav className="mt-10 flex flex-col gap-2">
+                {[
+                  { label: 'Today', icon: Home },
+                  { label: 'This week', icon: CalendarDays },
+                  { label: 'Meals', icon: CookingPot },
+                  { label: 'Shopping', icon: ShoppingBasket },
+                  { label: 'Changes', icon: RefreshCw },
+                ].map(({ label, icon: Icon }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => {
+                      setActiveNav(label)
+                      setMobileMenuOpen(false)
+                      document.getElementById(label === 'Today' ? 'today' : label === 'This week' ? 'this-week' : label === 'Meals' ? 'meals' : label === 'Shopping' ? 'shopping' : 'changes')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }}
+                    className={`flex h-12 items-center gap-3 rounded-xl px-3 text-left text-sm transition ${activeNav === label ? 'bg-[#e8f0eb] font-semibold text-[#244c46]' : 'text-[#6f7973] hover:bg-[#f0efe8]'}`}
+                  >
+                    <Icon className="size-[18px]" />
+                    {label}
+                  </button>
+                ))}
+              </nav>
+              <div className="mt-auto border-t border-[#e5e3db] pt-5">
+                <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className="flex h-12 items-center gap-3 rounded-xl px-3 text-sm text-[#6f7973] hover:bg-[#f0efe8]">
+                  <Settings2 className="size-[18px]" /> Settings
+                </Link>
+                {isAdmin && <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="flex h-12 items-center gap-3 rounded-xl px-3 text-sm text-[#6f7973] hover:bg-[#f0efe8]">
+                  <Settings2 className="size-[18px]" /> Admin
+                </Link>}
+              </div>
+            </aside>
+          </div>
+        )}
+
         <section className="min-w-0 w-full max-w-full flex-1 overflow-hidden px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-12">
           <header className="flex items-center justify-between py-4 sm:py-6 lg:py-8">
             <div className="flex min-w-0 items-center gap-2.5 lg:hidden">
-              <button className="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-[#efeee7]" aria-label="Open menu">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-[#efeee7]"
+                aria-label="Open menu"
+                aria-expanded={mobileMenuOpen}
+              >
                 <Menu className="size-5" />
               </button>
               <div className="flex min-w-0 items-center gap-2">
                 <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-8 shrink-0 rounded-lg" />
-                <span className="truncate font-serif text-lg font-semibold">GharKeChore</span>
+                <div className="min-w-0">
+                  <span className="block truncate font-serif text-lg font-semibold">GharKeChore</span>
+                  <span className="block truncate text-[9px] leading-3 text-[#87918a]">Kaam karo, kaamchori nahi.</span>
+                </div>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
