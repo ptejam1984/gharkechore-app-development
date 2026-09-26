@@ -435,7 +435,7 @@ export default function Dashboard({
                   </button>
                 </div>
                 <div className="mt-4 min-w-0 overflow-hidden pb-1 sm:mt-5">
-                  <div className="grid min-w-0 grid-cols-7 gap-0.5 sm:gap-2">
+                  <div className="grid w-full min-w-0 grid-cols-7 gap-0.5 sm:gap-2">
                   {week.map((item) => (
                     <button
                       key={item.iso}
@@ -464,7 +464,7 @@ export default function Dashboard({
                     <div className="flex flex-col gap-2">{selected.taskItems.length ? selected.taskItems.map((task) => <div key={task.id} className={`flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm ${task.done ? 'text-[#a1aaa4] line-through' : 'font-semibold text-[#3f4b46]'}`}><span>{task.title}</span><span className="text-xs font-normal no-underline">{task.person}</span></div>) : <p className="text-sm text-[#97a19b]">No tasks planned.</p>}</div>
                   </div> : null
                 })()}
-                <div className="mt-5 flex items-center gap-3 border-t border-[#e1d8c8] pt-4">
+                <div className="mt-4 flex min-w-0 items-center gap-2 border-t border-[#e1d8c8] pt-3 sm:mt-5 sm:gap-3 sm:pt-4">
                   <div className="flex size-9 items-center justify-center rounded-xl bg-[#e7dfcf] text-[#967d54]">
                     <Utensils className="size-4" />
                   </div>
@@ -518,7 +518,7 @@ export default function Dashboard({
                 </div>
                 <div className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-4">
                   {meals.map((meal) => (
-                    <div key={meal.slot} className="flex items-center gap-3">
+                    <div key={meal.slot} className="flex min-w-0 items-center gap-2 sm:gap-3">
                       <div
                         className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${mealTones[meal.slot]}`}
                       >
@@ -530,7 +530,7 @@ export default function Dashboard({
                           {meal.dish ?? 'Up to the family'}
                         </p>
                       </div>
-                      <span className="text-right text-[11px] text-[#97a19b]">{meal.personName ?? 'Unassigned'}</span>
+                      <span className="max-w-[4.5rem] shrink-0 truncate text-right text-[10px] text-[#97a19b] sm:max-w-none sm:text-[11px]">{meal.personName ?? 'Unassigned'}</span>
                     </div>
                   ))}
                 </div>
