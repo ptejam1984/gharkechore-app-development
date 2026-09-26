@@ -81,15 +81,17 @@ export async function addChore(input: {
   ])
   if (assignee?.google_calendar_connected || admin?.family_calendar_id) {
     for (const occurrence of occurrences ?? []) {
+      const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
       try {
-        const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
         const [personalEventId, familyEventId] = await Promise.all([
           assignee?.google_calendar_connected ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
-          admin?.id && admin.family_calendar_id && admin.google_calendar_connected ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
+          admin?.id && admin.family_calendar_id ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
         ])
-        await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId }).eq('id', occurrence.id)
+        const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId }).eq('id', occurrence.id)
+        if (syncError) throw syncError
       } catch (error) {
         console.error('[v0] Google Calendar task sync failed:', error)
+        throw new Error(error instanceof Error ? error.message : 'Google Calendar sync failed')
       }
     }
   }
