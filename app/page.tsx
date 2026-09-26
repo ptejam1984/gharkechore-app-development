@@ -51,10 +51,10 @@ export default async function Page() {
 
   const [members, chores, meals, shopping, week, pendingChanges] = await Promise.all([
     getMembers(supabase),
-    getTodayChores(supabase, todayIso),
+    getTodayChores(supabase, todayIso, user.id),
     getTodayMeals(supabase, todayIso),
     getShopping(supabase),
-    getWeek(supabase, today),
+    getWeek(supabase, today, user.id),
     getPendingChanges(supabase),
   ])
 

@@ -49,7 +49,12 @@ export async function updateCalendarEvent(userId: string, calendarId: string, ev
   const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`, {
     method: 'PATCH',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ summary: input.title, start: { dateTime: start.toISOString() }, end: { dateTime: end.toISOString() } }),
+    body: JSON.stringify({
+      summary: input.title,
+      start: { dateTime: start.toISOString() },
+      end: { dateTime: end.toISOString() },
+      reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 30 }, { method: 'popup', minutes: 10 }] },
+    }),
   })
   if (!response.ok && response.status !== 404) throw new Error(`Google Calendar update failed: ${response.status}`)
 }

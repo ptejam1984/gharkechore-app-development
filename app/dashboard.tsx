@@ -145,7 +145,6 @@ export default function Dashboard({
   const [newChore, setNewChore] = useState('')
   const [taskSearch, setTaskSearch] = useState('')
   const [taskCategory, setTaskCategory] = useState<string | null>(null)
-  const [taskAssignee, setTaskAssignee] = useState(profile.id)
   const [taskFrequency, setTaskFrequency] = useState<'once' | 'daily' | 'weekly'>('once')
   const [taskDate, setTaskDate] = useState(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date()))
   const [taskTime, setTaskTime] = useState('')
@@ -206,7 +205,7 @@ export default function Dashboard({
   const title = newChore.trim()
     if (!title) return
     startTransition(async () => {
-      await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
+      await addChore({ title, assigneeId: profile.id, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
       setNewChore('')
       setShowAdd(false)
     })
@@ -739,11 +738,7 @@ export default function Dashboard({
                 </div>
                 <button type="button" onClick={() => { setNewChore(taskSearch.trim()); setTaskSearch(taskSearch.trim()) }} className="mt-3 text-xs font-bold text-[#397568] hover:underline">+ Add custom task</button>
               </div>
-              {isAdmin && <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">For who?
-                <select value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none">
-                  {members.map((member) => <option key={member.id} value={member.id}>{member.display_name}{member.id === profile.id ? ' (me)' : ''}</option>)}
-                </select>
-              </label>}
+  <p className="text-xs text-[#7f8983]">This task will be assigned only to you.</p>
               <div className="grid grid-cols-2 gap-2">
                 <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">When?
                   <select value={taskFrequency} onChange={(e) => setTaskFrequency(e.target.value as typeof taskFrequency)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none"><option value="once">One time</option><option value="daily">Every day</option><option value="weekly">Selected days</option></select>

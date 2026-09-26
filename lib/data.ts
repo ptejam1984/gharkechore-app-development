@@ -120,13 +120,14 @@ export async function getMembers(supabase: DB): Promise<Member[]> {
   return data ?? []
 }
 
-export async function getTodayChores(supabase: DB, day: string): Promise<ChoreItem[]> {
+export async function getTodayChores(supabase: DB, day: string, userId: string): Promise<ChoreItem[]> {
   const { data } = await supabase
     .from('chore_occurrences')
     .select(
       'id, status, due_at, occurrence_date, template:chore_templates(title, due_time), assignee:profiles!chore_occurrences_assigned_to_fkey(id, display_name)',
     )
     .eq('occurrence_date', day)
+    .eq('assigned_to', userId)
     .order('due_at', { ascending: true, nullsFirst: false })
 
   return (data ?? []).map((row: any) => {
@@ -192,7 +193,7 @@ export async function getPendingChanges(supabase: DB): Promise<number> {
   return count ?? 0
 }
 
-export async function getWeek(supabase: DB, today: Date): Promise<WeekDay[]> {
+export async function getWeek(supabase: DB, today: Date, userId: string): Promise<WeekDay[]> {
   const start = weekStart(today)
   const end = addDays(start, 6)
   const startIso = iso(start)
@@ -200,7 +201,7 @@ export async function getWeek(supabase: DB, today: Date): Promise<WeekDay[]> {
   const todayIso = iso(today)
 
   const [{ data: occ }, { data: meals }] = await Promise.all([
-    supabase.from('chore_occurrences').select('id, template_id, assigned_to, occurrence_date, status').gte('occurrence_date', startIso).lte('occurrence_date', endIso),
+    supabase.from('chore_occurrences').select('id, template_id, assigned_to, occurrence_date, status').eq('assigned_to', userId).gte('occurrence_date', startIso).lte('occurrence_date', endIso),
     supabase.from('meals').select('meal_date, dish_name').eq('slot', 'dinner').gte('meal_date', startIso).lte('meal_date', endIso),
   ])
 
