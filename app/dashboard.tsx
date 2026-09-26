@@ -714,9 +714,12 @@ export default function Dashboard({
 
       {showAdd && (
         <div className="fixed inset-0 z-10 flex items-end justify-center bg-[#27322f]/20 p-4 sm:items-center">
-          <div className="w-full max-w-md rounded-[24px] bg-white p-6 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h2 className="font-serif text-2xl font-semibold">Add a one-off chore</h2>
+          <div className="flex max-h-[88vh] w-full max-w-md flex-col rounded-[24px] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#eeefe9] px-5 py-4">
+              <div>
+                <h2 className="font-serif text-xl font-semibold">Add a one-off chore</h2>
+                <p className="mt-0.5 text-xs text-[#87918a]">Add it once, every day, or on selected weekdays.</p>
+              </div>
               <button
                 onClick={() => setShowAdd(false)}
                 className="rounded-lg p-2 text-[#87918a] hover:bg-[#f2f3ed]"
@@ -725,29 +728,32 @@ export default function Dashboard({
                 <X className="size-5" />
               </button>
             </div>
-            <p className="mt-2 text-sm text-[#87918a]">Add it once, every day, or on selected weekdays.</p>
-            <div className="mt-6 flex flex-col gap-3">
-              <div className="relative">
-                <input value={taskSearch} onChange={(e) => { setTaskSearch(e.target.value); setNewChore(e.target.value) }} onKeyDown={(e) => { if (e.key === 'Enter' && visiblePickerTasks[0]) selectTask(visiblePickerTasks[0]) }} autoFocus className="h-12 w-full rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="Search a task or category..." aria-label="Search task or category" />
-                {taskCategory && <div className="mt-2 flex items-center gap-2"><span className="inline-flex items-center gap-1 rounded-full bg-[#e3f0eb] px-3 py-1 text-xs font-bold text-[#397568]">{taskCategory}<button type="button" onClick={() => setTaskCategory(null)} aria-label="Remove category"><X className="size-3" /></button></span></div>}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {!taskCategory && categoryMatches.slice(0, 4).map((category) => <button type="button" key={category} onClick={() => { setTaskCategory(category); setTaskSearch('') }} className="rounded-full bg-[#f2f3ed] px-3 py-1.5 text-xs font-semibold text-[#53635c] hover:bg-[#e3f0eb]">{category}</button>)}
+            <div className="flex-1 overflow-y-auto px-5 py-4">
+              <div className="flex flex-col gap-3">
+                <div className="relative">
+                  <input value={taskSearch} onChange={(e) => { setTaskSearch(e.target.value); setNewChore(e.target.value) }} onKeyDown={(e) => { if (e.key === 'Enter' && visiblePickerTasks[0]) selectTask(visiblePickerTasks[0]) }} autoFocus className="h-11 w-full rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="Search a task or category..." aria-label="Search task or category" />
+                  {taskCategory && <div className="mt-2 flex items-center gap-2"><span className="inline-flex items-center gap-1 rounded-full bg-[#e3f0eb] px-3 py-1 text-xs font-bold text-[#397568]">{taskCategory}<button type="button" onClick={() => setTaskCategory(null)} aria-label="Remove category"><X className="size-3" /></button></span></div>}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {!taskCategory && categoryMatches.slice(0, 4).map((category) => <button type="button" key={category} onClick={() => { setTaskCategory(category); setTaskSearch('') }} className="rounded-full bg-[#f2f3ed] px-3 py-1.5 text-xs font-semibold text-[#53635c] hover:bg-[#e3f0eb]">{category}</button>)}
+                  </div>
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2" role="listbox" aria-label="Suggested tasks">
+                    {visiblePickerTasks.map((task) => <button type="button" key={task} onClick={() => selectTask(task)} className="flex min-h-10 items-center justify-between rounded-xl border border-[#e8e6de] bg-white px-3 text-left text-sm text-[#34423c] hover:border-[#8bb9aa] hover:bg-[#f3f8f5]" role="option"><span>{task}</span><ChevronRight className="size-4 text-[#9aa8a0]" /></button>)}
+                  </div>
+                  <button type="button" onClick={() => { setNewChore(taskSearch.trim()); setTaskSearch(taskSearch.trim()) }} className="mt-2 text-xs font-bold text-[#397568] hover:underline">+ Add custom task</button>
                 </div>
-                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2" role="listbox" aria-label="Suggested tasks">
-                  {visiblePickerTasks.map((task) => <button type="button" key={task} onClick={() => selectTask(task)} className="flex min-h-11 items-center justify-between rounded-xl border border-[#e8e6de] bg-white px-3 text-left text-sm text-[#34423c] hover:border-[#8bb9aa] hover:bg-[#f3f8f5]" role="option"><span>{task}</span><ChevronRight className="size-4 text-[#9aa8a0]" /></button>)}
+                <p className="text-xs text-[#7f8983]">This task will be assigned only to you.</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">When?
+                    <select value={taskFrequency} onChange={(e) => setTaskFrequency(e.target.value as typeof taskFrequency)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none"><option value="once">One time</option><option value="daily">Every day</option><option value="weekly">Selected days</option></select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Start date<input type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
+                  <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Time <span className="font-normal text-[#a0a7a1]">optional</span><input type="time" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
                 </div>
-                <button type="button" onClick={() => { setNewChore(taskSearch.trim()); setTaskSearch(taskSearch.trim()) }} className="mt-3 text-xs font-bold text-[#397568] hover:underline">+ Add custom task</button>
+                {taskFrequency === 'weekly' && <div className="flex flex-wrap gap-2">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day, index) => <button type="button" key={day} onClick={() => setTaskDays((days) => days.includes(index) ? days.filter((d) => d !== index) : [...days, index])} className={`rounded-full px-3 py-1.5 text-xs font-bold ${taskDays.includes(index) ? 'bg-[#244c46] text-white' : 'bg-[#f2f3ed] text-[#6f7973]'}`}>{day}</button>)}</div>}
               </div>
-  <p className="text-xs text-[#7f8983]">This task will be assigned only to you.</p>
-              <div className="grid grid-cols-2 gap-2">
-                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">When?
-                  <select value={taskFrequency} onChange={(e) => setTaskFrequency(e.target.value as typeof taskFrequency)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none"><option value="once">One time</option><option value="daily">Every day</option><option value="weekly">Selected days</option></select>
-                </label>
-                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Start date<input type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
-                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Time <span className="font-normal text-[#a0a7a1]">optional</span><input type="time" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
-              </div>
-              {taskFrequency === 'weekly' && <div className="flex flex-wrap gap-2">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day, index) => <button type="button" key={day} onClick={() => setTaskDays((days) => days.includes(index) ? days.filter((d) => d !== index) : [...days, index])} className={`rounded-full px-3 py-1.5 text-xs font-bold ${taskDays.includes(index) ? 'bg-[#244c46] text-white' : 'bg-[#f2f3ed] text-[#6f7973]'}`}>{day}</button>)}</div>}
-              <button onClick={submitChore} disabled={pending || !newChore.trim()} className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50">Add task</button>
+            </div>
+            <div className="border-t border-[#eeefe9] px-5 py-4">
+              <button onClick={submitChore} disabled={pending || !newChore.trim()} className="h-11 w-full rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50">Add task</button>
             </div>
           </div>
         </div>
