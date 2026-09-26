@@ -38,8 +38,10 @@ export default function SettingsClient({ member }: { member: Member }) {
         theme,
         notificationsEnabled: Boolean(member.notifications_enabled),
       })
-      document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
-      document.documentElement.classList.toggle('light', theme === 'light')
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
+      document.documentElement.classList.remove('dark', 'light')
+      document.documentElement.classList.add(useDark ? 'dark' : 'light')
       setMessage('Settings saved')
       window.setTimeout(() => setMessage(''), 2500)
     })
