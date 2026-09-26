@@ -16,7 +16,7 @@ export function AuthShell({
             <div className="text-[11px] text-muted-foreground">Kaam karo, kaamchori nahi.</div>
           </div>
         </div>
-        <div className="rounded-[24px] border border-border bg-white p-7 shadow-[0_8px_30px_rgba(54,67,61,0.05)]">
+        <div className="rounded-[24px] border border-border bg-card p-7 shadow-[0_8px_30px_rgba(54,67,61,0.05)]">
           <h1 className="font-serif text-[28px] font-semibold tracking-[-0.02em]">{title}</h1>
           <p className="mt-1 mb-6 text-sm text-muted-foreground">{subtitle}</p>
           {children}
