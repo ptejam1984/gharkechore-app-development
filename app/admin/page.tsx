@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import CatalogManager from './catalog-manager'
+import CalendarSettings from './calendar-settings'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -10,7 +11,7 @@ export default async function AdminPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, display_name, role')
+    .select('id, display_name, role, google_calendar_connected, family_calendar_id')
     .eq('id', user.id)
     .maybeSingle()
 
@@ -66,6 +67,8 @@ export default async function AdminPage() {
           </section>
 
         </div>
+
+        <CalendarSettings connected={Boolean(profile.google_calendar_connected)} selectedCalendarId={profile.family_calendar_id} />
 
         <CatalogManager initialCategories={catalog} />
 

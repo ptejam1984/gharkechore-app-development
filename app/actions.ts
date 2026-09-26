@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
-import { createPersonalCalendarEvent } from '@/lib/google-calendar'
+import { createCalendarEvent } from '@/lib/google-calendar'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -75,12 +75,19 @@ export async function addChore(input: {
   due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
   }))).select('id, occurrence_date, due_at')
 
-  const { data: assignee } = await supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single()
-  if (assignee?.google_calendar_connected) {
+  const [{ data: assignee }, { data: admin }] = await Promise.all([
+    supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single(),
+    supabase.from('profiles').select('family_calendar_id, google_calendar_connected').eq('role', 'admin').limit(1).maybeSingle(),
+  ])
+  if (assignee?.google_calendar_connected || admin?.family_calendar_id) {
     for (const occurrence of occurrences ?? []) {
       try {
-        const eventId = await createPersonalCalendarEvent(assigneeId, { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at })
-        if (eventId) await supabase.from('chore_occurrences').update({ personal_google_event_id: eventId }).eq('id', occurrence.id)
+        const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
+        const [personalEventId, familyEventId] = await Promise.all([
+          assignee?.google_calendar_connected ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
+          admin?.family_calendar_id && admin.google_calendar_connected ? createCalendarEvent(user.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
+        ])
+        await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId }).eq('id', occurrence.id)
       } catch (error) {
         console.error('[v0] Google Calendar task sync failed:', error)
       }
@@ -146,6 +153,14 @@ export async function updateCatalogTask(id: string, title: string) {
   const cleanTitle = title.trim().slice(0, 120)
   if (profile?.role !== 'admin' || !cleanTitle) return
   await supabase.from('chore_templates').update({ title: cleanTitle }).eq('id', id)
+  revalidatePath('/admin')
+}
+
+export async function saveFamilyCalendar(calendarId: string) {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin' || !calendarId.trim()) return
+  await supabase.from('profiles').update({ family_calendar_id: calendarId.trim() }).eq('id', user.id)
   revalidatePath('/admin')
 }
 

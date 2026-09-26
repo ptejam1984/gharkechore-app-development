@@ -9,14 +9,14 @@ type CalendarEventInput = {
   dueAt: string | null
 }
 
-export async function createPersonalCalendarEvent(userId: string, input: CalendarEventInput) {
+export async function createCalendarEvent(userId: string, calendarId: string, input: CalendarEventInput) {
   const token = await getToken(CONNECTOR, {
     subject: { type: 'user', id: userId, issuer: 'supabase' },
     scopes: [CALENDAR_SCOPE],
   })
   const start = input.dueAt ? new Date(input.dueAt) : new Date(`${input.date}T09:00:00+01:00`)
   const end = new Date(start.getTime() + 30 * 60 * 1000)
-  const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+  const response = await fetch('`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events`', {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
