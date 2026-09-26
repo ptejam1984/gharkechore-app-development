@@ -190,14 +190,22 @@ export async function getWeek(supabase: DB, today: Date): Promise<WeekDay[]> {
   const todayIso = iso(today)
 
   const [{ data: occ }, { data: meals }] = await Promise.all([
-    supabase.from('chore_occurrences').select('id, occurrence_date, status, template:chore_templates(title), assignee:profiles!chore_occurrences_assigned_to_fkey(display_name)').gte('occurrence_date', startIso).lte('occurrence_date', endIso),
+    supabase.from('chore_occurrences').select('id, template_id, assigned_to, occurrence_date, status').gte('occurrence_date', startIso).lte('occurrence_date', endIso),
     supabase.from('meals').select('meal_date, dish_name').eq('slot', 'dinner').gte('meal_date', startIso).lte('meal_date', endIso),
   ])
 
+  const templateIds = [...new Set((occ ?? []).map((row) => row.template_id))]
+  const profileIds = [...new Set((occ ?? []).map((row) => row.assigned_to).filter(Boolean))]
+  const [{ data: templates }, { data: profiles }] = await Promise.all([
+    templateIds.length ? supabase.from('chore_templates').select('id, title').in('id', templateIds) : Promise.resolve({ data: [] }),
+    profileIds.length ? supabase.from('profiles').select('id, display_name').in('id', profileIds) : Promise.resolve({ data: [] }),
+  ])
+  const templateNames = new Map((templates ?? []).map((template) => [template.id, template.title]))
+  const profileNames = new Map((profiles ?? []).map((profile) => [profile.id, profile.display_name]))
   const tasksByDay = new Map<string, Array<{ id: string; title: string; person: string; done: boolean }>>()
   for (const row of occ ?? []) {
     const list = tasksByDay.get(row.occurrence_date) ?? []
-    list.push({ id: row.id, title: row.template?.[0]?.title ?? 'Task', person: row.assignee?.[0]?.display_name ?? 'Unassigned', done: row.status === 'done' })
+    list.push({ id: row.id, title: templateNames.get(row.template_id) ?? 'Untitled task', person: row.assigned_to ? profileNames.get(row.assigned_to) ?? 'Unknown member' : 'Unassigned', done: row.status === 'done' })
     tasksByDay.set(row.occurrence_date, list)
   }
   const dinners = new Map<string, string>()

@@ -172,75 +172,43 @@ input {
   font: inherit;
 }
 
-.chore-celebrating {
-  animation: chore-celebrating 1100ms cubic-bezier(.2,.9,.25,1);
-  overflow: visible;
-}
-
-.chore-celebrating::after {
+.completion-confetti {
   position: absolute;
-  inset: -1px;
-  border: 1px solid rgba(90, 155, 140, 0.35);
-  border-radius: inherit;
-  content: '';
-  animation: celebration-ring 900ms ease-out forwards;
-  pointer-events: none;
-}
-
-.completion-spark {
-  position: absolute;
-  z-index: 2;
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: #d9b36c;
-  pointer-events: none;
-  animation: spark-fly 850ms ease-out forwards;
-}
-
-.completion-spark-one { left: 24px; top: 15px; }
-.completion-spark-two { left: 39px; top: 27px; background: #e6bfd0; animation-delay: 80ms; }
-.completion-spark-three { left: 18px; top: 38px; background: #b8d6ce; animation-delay: 140ms; }
-
-.completion-message {
-  position: absolute;
-  top: -12px;
-  left: 52px;
+  inset: 0;
   z-index: 3;
-  color: #397568;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .02em;
-  white-space: nowrap;
-  animation: message-float 1050ms ease-out forwards;
   pointer-events: none;
 }
+
+.completion-confetti i {
+  position: absolute;
+  left: 17px;
+  top: 50%;
+  width: 5px;
+  height: 10px;
+  border-radius: 2px;
+  background: #d9b36c;
+  animation: confetti-pop 720ms ease-out forwards;
+}
+
+.completion-confetti i:nth-child(2) { background: #b8d6ce; animation-delay: 35ms; }
+.completion-confetti i:nth-child(3) { background: #e6bfd0; animation-delay: 70ms; }
+.completion-confetti i:nth-child(4) { background: #c8c5e7; animation-delay: 100ms; }
+.completion-confetti i:nth-child(5) { background: #d9b36c; animation-delay: 130ms; }
+.completion-confetti i:nth-child(6) { background: #b8d6ce; animation-delay: 165ms; }
+
+.completion-confetti i:nth-child(1) { --x: 38px; --y: -27px; --r: 34deg; }
+.completion-confetti i:nth-child(2) { --x: 46px; --y: -8px; --r: -24deg; }
+.completion-confetti i:nth-child(3) { --x: 38px; --y: 21px; --r: 48deg; }
+.completion-confetti i:nth-child(4) { --x: 18px; --y: -34px; --r: -42deg; }
+.completion-confetti i:nth-child(5) { --x: 8px; --y: 27px; --r: 22deg; }
+.completion-confetti i:nth-child(6) { --x: 54px; --y: 13px; --r: -35deg; }
 
 .check-pop { animation: check-pop 520ms cubic-bezier(.2,1.4,.4,1); }
 
-@keyframes chore-celebrating {
-  0% { transform: scale(1); }
-  22% { transform: scale(1.018) translateY(-2px); }
-  52% { transform: scale(1.006); }
-  100% { transform: scale(1); }
-}
-
-@keyframes celebration-ring {
-  0% { opacity: .8; transform: scale(.98); }
-  100% { opacity: 0; transform: scale(1.035); }
-}
-
-@keyframes spark-fly {
-  0% { opacity: 0; transform: translate(0, 8px) scale(.4); }
-  25% { opacity: 1; }
-  100% { opacity: 0; transform: translate(30px, -24px) scale(1); }
-}
-
-@keyframes message-float {
-  0% { opacity: 0; transform: translateY(8px) scale(.92); }
-  18% { opacity: 1; transform: translateY(0) scale(1); }
-  72% { opacity: 1; transform: translateY(-3px) scale(1); }
-  100% { opacity: 0; transform: translateY(-11px) scale(.98); }
+@keyframes confetti-pop {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0) scale(.7); }
+  16% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(var(--r)) scale(1); }
 }
 
 @keyframes check-pop {
@@ -250,6 +218,5 @@ input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chore-celebrating, .chore-celebrating::after, .completion-spark, .completion-message, .check-pop { animation: none; }
-  .completion-message { opacity: 1; }
+  .completion-confetti i { animation: none; }
 }
