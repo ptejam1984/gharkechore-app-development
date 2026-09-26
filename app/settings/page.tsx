@@ -9,7 +9,7 @@ export default async function SettingsPage() {
 
   const { data: member } = await supabase
     .from('profiles')
-    .select('id, display_name, role, avatar_key, theme, notifications_enabled')
+    .select('id, display_name, role, avatar_key, theme, notifications_enabled, google_calendar_connected, family_calendar_id')
     .eq('id', user.id)
     .single()
 

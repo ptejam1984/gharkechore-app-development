@@ -62,6 +62,7 @@ export default function SettingsClient({ member }: { member: Member }) {
         <section className="mt-5 rounded-[28px] border border-[#e5e3db] bg-white p-6 shadow-[0_10px_30px_rgba(54,67,61,0.05)]">
           <div className="flex items-start justify-between gap-4"><div className="flex gap-3"><CalendarDays className="mt-0.5 size-5 text-[#5a8177]" /><div><h2 className="text-lg font-bold">Google Calendar</h2><p className="mt-1 text-sm leading-6 text-[#7b867f]">Connect your calendar so task reminders can be delivered by Google Calendar.</p></div></div><a href="/api/calendar/connect" className="shrink-0 rounded-xl bg-[#244c46] px-4 py-2 text-xs font-bold text-white hover:bg-[#1c3d38]">{member.google_calendar_connected ? 'Connected' : 'Connect'}</a></div>
           {member.google_calendar_connected && <p className="mt-3 text-xs font-semibold text-[#397568]">Your Google account is connected. Calendar event mirroring will use your private account.</p>}
+          {member.family_calendar_id && <p className="mt-3 rounded-xl bg-[#eef6f0] p-3 text-xs font-semibold text-[#397568]">Shared family calendar is selected by the admin. New tasks assigned to you will also be added there. Your personal calendar connection is separate.</p>}
         </section>
 
         <section className="mt-5 rounded-[28px] border border-[#e5e3db] bg-white p-6 shadow-[0_10px_30px_rgba(54,67,61,0.05)]">
