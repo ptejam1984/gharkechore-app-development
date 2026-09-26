@@ -353,7 +353,7 @@ export default function Dashboard({
             ))}
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+          <div className="min-w-0 grid gap-4 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex flex-col gap-6">
               <section id="today" className="min-w-0 scroll-mt-4 rounded-[18px] border border-[#e8e6de] bg-white p-3 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
@@ -434,20 +434,20 @@ export default function Dashboard({
                     <CalendarDays className="size-[18px]" />
                   </button>
                 </div>
-                <div className="mt-5 min-w-0 overflow-x-auto overscroll-x-contain pb-1">
-                  <div className="grid min-w-0 grid-cols-7 gap-1 sm:gap-2">
+                <div className="mt-4 min-w-0 overflow-hidden pb-1 sm:mt-5">
+                  <div className="grid min-w-0 grid-cols-7 gap-0.5 sm:gap-2">
                   {week.map((item) => (
                     <button
                       key={item.iso}
                       onClick={() => setSelectedWeekDay(item.iso)}
-                      className={`rounded-2xl border p-2 text-center transition sm:p-3 ${
+                      className={`min-w-0 rounded-xl border p-1 text-center transition sm:rounded-2xl sm:p-3 ${
                         item.isToday
                           ? 'border-[#244c46] bg-[#244c46] text-white shadow-md'
                           : 'border-[#e3dccd] bg-[#f8f5ed] text-[#6f7973] hover:border-[#b8d6ce]'
                       }`}
                     >
-                      <div className="text-[9px] font-bold tracking-wider opacity-70 sm:text-[10px]">{item.day}</div>
-                      <div className="mt-1 text-lg font-semibold sm:text-xl">{item.date}</div>
+                      <div className="truncate text-[8px] font-bold tracking-wide opacity-70 sm:text-[10px]">{item.day}</div>
+                      <div className="mt-1 text-base font-semibold sm:text-xl">{item.date}</div>
                       <div
                         className={`mx-auto mt-2 size-1.5 rounded-full ${
                           item.tasks === 0 ? 'bg-transparent' : item.isToday ? 'bg-[#f4e4c8]' : 'bg-[#b8d6ce]'
