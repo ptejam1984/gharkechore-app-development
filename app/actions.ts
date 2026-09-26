@@ -37,11 +37,22 @@ export async function toggleOccurrence(occurrenceId: string, done: boolean) {
 
   if (done) {
     const { data: admin } = await supabase.from('profiles').select('id, family_calendar_id').eq('role', 'admin').limit(1).maybeSingle()
-    await Promise.allSettled([
+    const [personalDeletion, familyDeletion] = await Promise.allSettled([
       occurrence.personal_google_event_id ? deleteCalendarEvent(occurrence.assigned_to, 'primary', occurrence.personal_google_event_id) : Promise.resolve(),
       occurrence.family_google_event_id && admin?.family_calendar_id ? deleteCalendarEvent(admin.id, admin.family_calendar_id, occurrence.family_google_event_id) : Promise.resolve(),
     ])
-    await supabase.from('chore_occurrences').update({ personal_google_event_id: null, family_google_event_id: null }).eq('id', occurrenceId)
+    const personalDeleted = !occurrence.personal_google_event_id || personalDeletion.status === 'fulfilled'
+    const familyDeleted = !occurrence.family_google_event_id || !admin?.family_calendar_id || familyDeletion.status === 'fulfilled'
+    const deletionErrors = [
+      !personalDeleted ? `Personal calendar: ${personalDeletion.status === 'rejected' && personalDeletion.reason instanceof Error ? personalDeletion.reason.message : 'delete failed'}` : null,
+      !familyDeleted ? `Family calendar: ${familyDeletion.status === 'rejected' && familyDeletion.reason instanceof Error ? familyDeletion.reason.message : 'delete failed'}` : null,
+    ].filter(Boolean).join(' | ')
+    await supabase.from('chore_occurrences').update({
+      personal_google_event_id: personalDeleted ? null : occurrence.personal_google_event_id,
+      family_google_event_id: familyDeleted ? null : occurrence.family_google_event_id,
+      google_calendar_sync_error: deletionErrors || null,
+      google_calendar_synced_at: null,
+    }).eq('id', occurrenceId)
   }
   revalidatePath('/')
 }
