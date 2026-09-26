@@ -259,7 +259,7 @@ export default function Dashboard({
           <div className="flex items-center gap-3 px-2">
             <div>
               <div className="flex items-center gap-2.5"><img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-9 rounded-xl" /><div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div></div>
-              <div className="text-[11px] text-muted-foreground">Kaam karo, kaamchori nahi.</div>
+              <div className="text-[13px] text-muted-foreground">Kaam karo, kaamchori nahi.</div>
             </div>
           </div>
           <div className="mt-12 flex flex-col gap-2">
@@ -340,7 +340,7 @@ export default function Dashboard({
                     <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-9 rounded-xl" />
                     <div className="font-serif text-xl font-semibold">GharKeChore</div>
                   </div>
-                  <div className="mt-1 text-[11px] text-muted-foreground">Kaam karo, kaamchori nahi.</div>
+                  <div className="mt-1 text-[13px] text-muted-foreground">Kaam karo, kaamchori nahi.</div>
                 </div>
                 <button type="button" onClick={() => setMobileMenuOpen(false)} className="flex size-10 items-center justify-center rounded-xl hover:bg-muted" aria-label="Close menu">
                   <X className="size-5" />
@@ -397,7 +397,7 @@ export default function Dashboard({
                 <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-8 shrink-0 rounded-lg" />
                 <div className="min-w-0">
                   <span className="block truncate font-serif text-lg font-semibold">GharKeChore</span>
-                  <span className="block truncate text-[9px] leading-3 text-muted-foreground">Kaam karo, kaamchori nahi.</span>
+                  <span className="block truncate text-[11px] leading-4 text-muted-foreground">Kaam karo, kaamchori nahi.</span>
                 </div>
               </div>
             </div>
