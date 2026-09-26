@@ -42,25 +42,25 @@ export default async function AdminPage() {
   const catalog = Object.fromEntries(Object.entries(pickerCategories).map(([category, titles]) => [category, titles.map((title) => storedByKey.get(`${category}::${title}`) ?? { id: '', title })]))
 
   return (
-    <main className="min-h-screen bg-[#f8f7f2] px-5 py-8 text-[#27322f] sm:px-8 lg:px-12">
+    <main className="min-h-screen bg-background px-5 py-8 text-foreground sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-[#87918a]">GharKeChore · administration</p>
+            <p className="text-sm font-medium text-muted-foreground">GharKeChore · administration</p>
             <h1 className="mt-1 font-serif text-4xl font-semibold tracking-[-0.03em]">Admin centre</h1>
-            <p className="mt-2 text-sm text-[#6f7973]">Manage family members, the task picker library, and completion records.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Manage family members, the task picker library, and completion records.</p>
           </div>
-          <Link href="/" className="rounded-xl border border-[#e5e3db] bg-white px-4 py-2 text-sm font-semibold shadow-sm hover:border-[#b8d6ce]">Back to dashboard</Link>
+          <Link href="/" className="rounded-xl border border-border bg-white px-4 py-2 text-sm font-semibold shadow-sm hover:border-mint">Back to dashboard</Link>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
-            <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Family members</h2><span className="rounded-full bg-[#e8f0eb] px-3 py-1 text-xs font-bold text-[#244c46]">{members?.length ?? 0}</span></div>
+          <section className="rounded-[24px] border border-border bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+            <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Family members</h2><span className="rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">{members?.length ?? 0}</span></div>
             <div className="mt-5 flex flex-col gap-3">
               {(members ?? []).map((member) => (
-                <div key={member.id} className="flex items-center justify-between rounded-xl bg-[#fbfaf6] px-4 py-3">
-                  <div><p className="font-semibold">{member.display_name}</p><p className="text-xs text-[#87918a]">{member.visual_only ? 'Visual only' : 'Can complete chores'}</p></div>
-                  <span className="rounded-full bg-[#f2eee4] px-2.5 py-1 text-xs font-bold capitalize text-[#967d54]">{member.role}</span>
+                <div key={member.id} className="flex items-center justify-between rounded-xl bg-sidebar px-4 py-3">
+                  <div><p className="font-semibold">{member.display_name}</p><p className="text-xs text-muted-foreground">{member.visual_only ? 'Visual only' : 'Can complete chores'}</p></div>
+                  <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-bold capitalize text-secondary-foreground">{member.role}</span>
                 </div>
               ))}
             </div>
@@ -72,9 +72,9 @@ export default async function AdminPage() {
 
         <CatalogManager initialCategories={catalog} />
 
-        <section className="mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
-          <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Recent chore status</h2><span className="text-sm text-[#87918a]">Last 50 occurrences</span></div>
-          <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="border-b border-[#e8e6de] text-xs uppercase tracking-wider text-[#87918a]"><tr><th className="pb-3">Chore</th><th className="pb-3">Assigned to</th><th className="pb-3">Date</th><th className="pb-3">Status</th></tr></thead><tbody>{(occurrences ?? []).map((occurrence: any) => <tr key={occurrence.id} className="border-b border-[#f0efe8]"><td className="py-3 font-semibold">{occurrence.template?.title ?? 'Chore'}</td><td className="py-3">{occurrence.assignee?.display_name ?? 'Unassigned'}</td><td className="py-3 text-[#6f7973]">{occurrence.occurrence_date}</td><td className="py-3"><span className="rounded-full bg-[#e8f0eb] px-2.5 py-1 text-xs font-bold capitalize text-[#244c46]">{occurrence.status.replace('_', ' ')}</span></td></tr>)}</tbody></table></div>
+        <section className="mt-6 rounded-[24px] border border-border bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+          <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Recent chore status</h2><span className="text-sm text-muted-foreground">Last 50 occurrences</span></div>
+          <div className="mt-5 overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="pb-3">Chore</th><th className="pb-3">Assigned to</th><th className="pb-3">Date</th><th className="pb-3">Status</th></tr></thead><tbody>{(occurrences ?? []).map((occurrence: any) => <tr key={occurrence.id} className="border-b border-muted"><td className="py-3 font-semibold">{occurrence.template?.title ?? 'Chore'}</td><td className="py-3">{occurrence.assignee?.display_name ?? 'Unassigned'}</td><td className="py-3 text-muted-foreground">{occurrence.occurrence_date}</td><td className="py-3"><span className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold capitalize text-accent-foreground">{occurrence.status.replace('_', ' ')}</span></td></tr>)}</tbody></table></div>
         </section>
       </div>
     </main>

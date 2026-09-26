@@ -68,9 +68,7 @@ export async function addChore(input: {
   const clean = input.title.trim()
   if (!clean || !input.date) return
   const { supabase, user } = await requireUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  const assigneeId = profile?.role === 'admin' ? input.assigneeId : user.id
-  if (!assigneeId) return
+  const assigneeId = user.id
 
   const frequency = input.frequency === 'once' ? 'on_demand' : input.frequency
   const { data: template } = await supabase.from('chore_templates').insert({
@@ -95,25 +93,19 @@ export async function addChore(input: {
   due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
   }))).select('id, occurrence_date, due_at')
 
-  const [{ data: assignee }, { data: admin }] = await Promise.all([
-    supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single(),
-    supabase.from('profiles').select('id, family_calendar_id, google_calendar_connected').eq('role', 'admin').limit(1).maybeSingle(),
-  ])
-  if (assigneeId || admin?.family_calendar_id) {
+  const { data: assignee } = await supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single()
+  if (assigneeId && assignee) {
     for (const occurrence of occurrences ?? []) {
       const eventInput = { title: clean, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
       try {
-        const [personalResult, familyResult] = await Promise.allSettled([
-          assigneeId ? createCalendarEvent(assigneeId, 'primary', eventInput) : Promise.resolve(null),
-          admin?.id && admin.family_calendar_id ? createCalendarEvent(admin.id, admin.family_calendar_id, eventInput) : Promise.resolve(null),
+        const personalResult = await Promise.allSettled([
+          createCalendarEvent(assigneeId, 'primary', eventInput),
         ])
-        const personalEventId = personalResult.status === 'fulfilled' ? personalResult.value : null
-        const familyEventId = familyResult.status === 'fulfilled' ? familyResult.value : null
-        const errors = [
-          personalResult.status === 'rejected' ? `Personal calendar: ${personalResult.reason instanceof Error ? personalResult.reason.message : 'authorization failed'}` : null,
-          familyResult.status === 'rejected' ? `Family calendar: ${familyResult.reason instanceof Error ? familyResult.reason.message : 'authorization failed'}` : null,
-        ].filter(Boolean).join(' | ')
-        const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: familyEventId, google_calendar_sync_error: errors || null, google_calendar_synced_at: errors ? null : new Date().toISOString() }).eq('id', occurrence.id)
+        const personalEventId = personalResult[0].status === 'fulfilled' ? personalResult[0].value : null
+        const errors = personalResult[0].status === 'rejected'
+          ? `Personal calendar: ${personalResult[0].reason instanceof Error ? personalResult[0].reason.message : 'authorization failed'}`
+          : ''
+        const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: null, google_calendar_sync_error: errors || null, google_calendar_synced_at: errors ? null : new Date().toISOString() }).eq('id', occurrence.id)
         if (syncError) throw syncError
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Google Calendar sync failed'
@@ -230,16 +222,14 @@ export async function addCatalogTask(category: string, title: string) {
 
 export async function updateProfilePreferences(input: {
   displayName: string
-  avatarKey: string
   theme: 'system' | 'light' | 'dark'
   notificationsEnabled: boolean
 }) {
   const { supabase, user } = await requireUser()
   const displayName = input.displayName.trim().slice(0, 100)
-  if (!displayName || !['leaf', 'sun', 'moon', 'flower', 'star', 'home'].includes(input.avatarKey)) return
+  if (!displayName) return
   await supabase.from('profiles').update({
     display_name: displayName,
-    avatar_key: input.avatarKey,
     theme: input.theme,
     notifications_enabled: input.notificationsEnabled,
   }).eq('id', user.id)

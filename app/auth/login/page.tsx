@@ -40,39 +40,39 @@ export default function LoginPage() {
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#87918a]">Email</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Email</span>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]"
+            className="h-12 rounded-xl border border-input bg-card px-4 text-sm outline-none focus:border-success"
             placeholder="you@family.com"
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#87918a]">Password</span>
+          <span className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Password</span>
           <input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]"
+            className="h-12 rounded-xl border border-input bg-card px-4 text-sm outline-none focus:border-success"
             placeholder="••••••••"
           />
         </label>
-        {error && <p className="rounded-lg bg-[#f8e0e0] px-3 py-2 text-sm text-[#9a4a4a]">{error}</p>}
+        {error && <p className="rounded-lg bg-destructive/15 px-3 py-2 text-sm text-destructive">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:opacity-50"
+          className="mt-2 h-12 rounded-xl bg-primary text-sm font-bold text-white hover:bg-primary disabled:opacity-50"
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-[#87918a]">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         New to the family?{' '}
-        <Link href="/auth/sign-up" className="font-semibold text-[#244c46] hover:underline">
+        <Link href="/auth/sign-up" className="font-semibold text-primary hover:underline">
           Create an account
         </Link>
       </p>
