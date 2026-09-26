@@ -26,11 +26,19 @@ export default async function AdminPage() {
       .limit(50),
   ])
 
-  const catalog = (templates ?? []).reduce<Record<string, Array<{ id: string; title: string }>>>((groups, template: any) => {
-    const category = template.category ?? 'General'
-    groups[category] = [...(groups[category] ?? []), { id: template.id, title: template.title }]
-    return groups
-  }, {})
+  const pickerCategories: Record<string, string[]> = {
+    Kitchen: ['Wash Utensils', 'Load Dishwasher', 'Unload Dishwasher', 'Clean Kitchen', 'Clean Fridge', 'Wipe Counters'],
+    Laundry: ['Wash Clothes', 'Dry Clothes', 'Fold Clothes', 'Iron Clothes', 'Put Clothes Away', 'Change Bedsheets'],
+    Cleaning: ['Vacuum', 'Sweep Floor', 'Mop Floor', 'Dust Surfaces', 'Clean Bathroom', 'Clean Windows', 'Tidy Room'],
+    Meals: ['Make Breakfast', 'Cook Lunch', 'Cook Dinner', 'Prepare Snacks', 'Pack Lunch', 'Plan Meals', 'Set Table', 'Clear Table'],
+    Shopping: ['Buy Groceries', 'Buy Essentials', 'Collect Order', 'Return Item'],
+    'Bins & Garden': ['Take Bins Out', 'Bring Bins In', 'Empty Bins', 'Sort Recycling', 'Mow Lawn', 'Water Plants'],
+    'Study & Work': ['Study', 'Do Homework', 'Read', 'Revise', 'Practise Skill', 'Pack School Bag'],
+    Family: ['School Drop-off', 'School Pick-up', 'Help Family'],
+    'Personal & Admin': ['Exercise', 'Book Appointment', 'Pay Bill', 'Collect Prescription', 'Fix Something'],
+  }
+  const storedByKey = new Map((templates ?? []).map((template: any) => [`${template.category ?? 'General'}::${template.title}`, { id: template.id, title: template.title }]))
+  const catalog = Object.fromEntries(Object.entries(pickerCategories).map(([category, titles]) => [category, titles.map((title) => storedByKey.get(`${category}::${title}`) ?? { id: '', title })]))
 
   return (
     <main className="min-h-screen bg-[#f8f7f2] px-5 py-8 text-[#27322f] sm:px-8 lg:px-12">
@@ -39,7 +47,7 @@ export default async function AdminPage() {
           <div>
             <p className="text-sm font-medium text-[#87918a]">GharKeChore · administration</p>
             <h1 className="mt-1 font-serif text-4xl font-semibold tracking-[-0.03em]">Admin centre</h1>
-            <p className="mt-2 text-sm text-[#6f7973]">Manage family members, chore templates, and completion records.</p>
+            <p className="mt-2 text-sm text-[#6f7973]">Manage family members, the task picker library, and completion records.</p>
           </div>
           <Link href="/" className="rounded-xl border border-[#e5e3db] bg-white px-4 py-2 text-sm font-semibold shadow-sm hover:border-[#b8d6ce]">Back to dashboard</Link>
         </div>
@@ -57,14 +65,6 @@ export default async function AdminPage() {
             </div>
           </section>
 
-          <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
-            <div className="flex items-center justify-between"><h2 className="font-serif text-2xl font-semibold">Chore templates</h2><span className="rounded-full bg-[#e8f0eb] px-3 py-1 text-xs font-bold text-[#244c46]">{templates?.length ?? 0}</span></div>
-            <div className="mt-5 flex flex-col gap-3">
-              {(templates ?? []).map((template) => (
-                <div key={template.id} className="flex items-center justify-between rounded-xl bg-[#fbfaf6] px-4 py-3"><div><p className="font-semibold">{template.title}</p><p className="text-xs capitalize text-[#87918a]">{template.frequency.replace('_', ' ')}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${template.active ? 'bg-[#e8f0eb] text-[#244c46]' : 'bg-[#f2eee4] text-[#967d54]'}`}>{template.active ? 'Active' : 'Paused'}</span></div>
-              ))}
-            </div>
-          </section>
         </div>
 
         <CatalogManager initialCategories={catalog} />

@@ -16,10 +16,12 @@ export default function CatalogManager({ initialCategories }: { initialCategorie
 
   function saveTask(id: string) {
     const title = editingTitle.trim()
-    if (!title) return
+    const category = selectedCategory
+    if (!title || !category) return
     startTransition(async () => {
-      await updateCatalogTask(id, title)
-      setCategories((current) => Object.fromEntries(Object.entries(current).map(([category, tasks]) => [category, tasks.map((task) => task.id === id ? { ...task, title } : task)])))
+      if (id) await updateCatalogTask(id, title)
+      else await addCatalogTask(category, title)
+      setCategories((current) => Object.fromEntries(Object.entries(current).map(([name, tasks]) => [name, tasks.map((task) => task.id === id ? { ...task, title } : task)])))
       setEditingId(null)
     })
   }
