@@ -26,6 +26,7 @@ export type MealItem = {
   slot: 'breakfast' | 'lunch' | 'dinner'
   dish: string | null
   personName: string | null
+  responsibleId: string | null
 }
 
 export type ShoppingItem = {
@@ -169,6 +170,7 @@ export async function getTodayMeals(supabase: DB, day: string): Promise<MealItem
       slot,
       dish: row?.dish_name ?? null,
       personName: row?.responsible_profile_id ? profileNames.get(row.responsible_profile_id) ?? null : null,
+      responsibleId: row?.responsible_profile_id ?? null,
     }
   })
 }
