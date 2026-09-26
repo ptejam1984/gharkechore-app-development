@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { iso, londonToday, ukLocalDateTimeToIso } from '@/lib/data'
+import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -86,8 +86,18 @@ export async function updateMeal(slot: 'breakfast' | 'lunch' | 'dinner', dish: s
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (!profile || profile.role !== 'admin') return
   const mealDate = iso(londonToday())
-  await supabase.from('meals').upsert({ meal_date: mealDate, slot, dish_name: cleanDish, responsible_id: responsibleId || null }, { onConflict: 'meal_date,slot' })
+  const weekDate = iso(weekStart(londonToday()))
+  const { error } = await supabase.from('meals').upsert({
+    week_start: weekDate,
+    meal_date: mealDate,
+    slot,
+    dish_name: cleanDish,
+    responsible_profile_id: responsibleId || null,
+    created_by: user.id,
+  }, { onConflict: 'meal_date,slot' })
+  if (error) throw new Error(`Unable to save meal: ${error.message}`)
   revalidatePath('/')
+  revalidatePath('/admin')
 }
 
 export async function addShoppingItem(label: string, quantity?: string) {
