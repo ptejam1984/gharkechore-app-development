@@ -107,6 +107,25 @@ export async function removeShoppingItem(id: string) {
   revalidatePath('/')
 }
 
+export async function updateProfilePreferences(input: {
+  displayName: string
+  avatarKey: string
+  theme: 'system' | 'light' | 'dark'
+  notificationsEnabled: boolean
+}) {
+  const { supabase, user } = await requireUser()
+  const displayName = input.displayName.trim().slice(0, 100)
+  if (!displayName || !['leaf', 'sun', 'moon', 'flower', 'star', 'home'].includes(input.avatarKey)) return
+  await supabase.from('profiles').update({
+    display_name: displayName,
+    avatar_key: input.avatarKey,
+    theme: input.theme,
+    notifications_enabled: input.notificationsEnabled,
+  }).eq('id', user.id)
+  revalidatePath('/')
+  revalidatePath('/settings')
+}
+
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()

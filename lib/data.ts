@@ -1,6 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export type Member = { id: string; display_name: string; role: string }
+export type Member = {
+  id: string
+  display_name: string
+  role: string
+  avatar_key?: string
+  theme?: 'system' | 'light' | 'dark'
+  notifications_enabled?: boolean
+}
 
 export type ChoreItem = {
   occurrenceId: string
@@ -92,7 +99,7 @@ type DB = SupabaseClient
 export async function getMembers(supabase: DB): Promise<Member[]> {
   const { data } = await supabase
     .from('profiles')
-    .select('id, display_name, role')
+    .select('id, display_name, role, avatar_key, theme, notifications_enabled')
     .order('created_at', { ascending: true })
   return data ?? []
 }
