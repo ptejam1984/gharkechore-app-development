@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import {
   Bell,
   CalendarDays,
@@ -48,6 +48,24 @@ const mealTones: Record<string, string> = {
 }
 
 const dotColors = ['bg-[#d9c7a7]', 'bg-[#b8d6ce]', 'bg-[#e6bfd0]', 'bg-[#c8c5e7]']
+
+function Countdown({ dueAt, done }: { dueAt: string | null; done: boolean }) {
+  const [minutes, setMinutes] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!dueAt || done) {
+      setMinutes(null)
+      return
+    }
+    const update = () => setMinutes(Math.max(0, Math.ceil((new Date(dueAt).getTime() - Date.now()) / 60000)))
+    update()
+    const timer = window.setInterval(update, 30000)
+    return () => window.clearInterval(timer)
+  }, [dueAt, done])
+
+  if (minutes === null) return null
+  return <span className={minutes <= 15 ? 'font-bold text-[#b6775a]' : 'font-semibold text-[#5a8177]'}>{minutes === 0 ? 'Due now' : `${minutes} min left`}</span>
+}
 
 type Props = {
   profile: Member
@@ -144,7 +162,10 @@ export default function Dashboard({
             ].map(({ label, icon: Icon }) => (
               <button
                 key={label}
-                onClick={() => setActiveNav(label)}
+                onClick={() => {
+                  setActiveNav(label)
+                  document.getElementById(label === 'Today' ? 'today' : label === 'This week' ? 'this-week' : label === 'Meals' ? 'meals' : label === 'Shopping' ? 'shopping' : 'changes')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                }}
                 className={`flex h-11 items-center gap-3 rounded-xl px-3 text-left text-sm transition ${
                   activeNav === label
                     ? 'bg-[#e8f0eb] font-semibold text-[#244c46]'
@@ -251,7 +272,7 @@ export default function Dashboard({
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex flex-col gap-6">
-              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:p-7">
+              <section id="today" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -310,6 +331,7 @@ export default function Dashboard({
                             <span>{task.person}</span>
                             <span className="size-0.5 rounded-full bg-[#c3ccc6]" />
                             <span>{task.time}</span>
+                            <Countdown dueAt={task.dueAt} done={task.done} />
                           </div>
                         </div>
                       </div>
@@ -318,7 +340,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section className="rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
+              <section id="this-week" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
@@ -391,7 +413,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+              <section id="meals" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
@@ -421,7 +443,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+              <section id="shopping" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f8e9df] text-[#b6775a]">
@@ -493,7 +515,7 @@ export default function Dashboard({
             </div>
           </div>
 
-          <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5e3db] pt-5 text-xs text-[#97a19b]">
+          <footer id="changes" className="scroll-mt-6 mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5e3db] pt-5 text-xs text-[#97a19b]">
             <span>GharKeChore · London time</span>
             <div className="flex gap-4">
               <button className="hover:text-[#244c46]">Need help</button>

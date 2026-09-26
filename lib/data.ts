@@ -8,6 +8,7 @@ export type ChoreItem = {
   person: string
   personId: string | null
   time: string
+  dueAt: string | null
   done: boolean
   status: string
 }
@@ -120,6 +121,7 @@ export async function getTodayChores(supabase: DB, day: string): Promise<ChoreIt
       person: row.assignee?.display_name ?? 'Unassigned',
       personId: row.assignee?.id ?? null,
       time,
+      dueAt: row.due_at ?? (dueTime ? `${row.occurrence_date}T${dueTime}` : null),
       done: row.status === 'done',
       status: row.status,
     }
