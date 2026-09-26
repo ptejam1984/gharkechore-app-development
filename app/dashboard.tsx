@@ -206,9 +206,19 @@ export default function Dashboard({
     if (!title) return
     startTransition(async () => {
       await addChore({ title, assigneeId: profile.id, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
-      setNewChore('')
       setShowAdd(false)
     })
+  }
+
+  function openAddChore() {
+    setNewChore('')
+    setTaskSearch('')
+    setTaskCategory(null)
+    setTaskFrequency('once')
+    setTaskDate(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date()))
+    setTaskTime('')
+    setTaskDays([1])
+    setShowAdd(true)
   }
 
   function openMealEditor() {
@@ -444,7 +454,7 @@ export default function Dashboard({
                     <p className="mt-1 text-sm text-[#87918a]">A little at a time makes a home.</p>
                   </div>
                   <button
-                    onClick={() => setShowAdd(true)}
+                    onClick={openAddChore}
                     className="flex items-center gap-1.5 rounded-xl bg-[#edf3ef] px-3 py-2 text-xs font-bold text-[#244c46] hover:bg-[#e2eee7]"
                   >
                     <Plus className="size-4" />
