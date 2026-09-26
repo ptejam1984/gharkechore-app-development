@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
-import { createCalendarEvent } from '@/lib/google-calendar'
+import { createCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from '@/lib/google-calendar'
 
 async function requireUser() {
   const supabase = await createClient()
@@ -20,7 +20,7 @@ export async function toggleOccurrence(occurrenceId: string, done: boolean) {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   const { data: occurrence } = await supabase
     .from('chore_occurrences')
-    .select('assigned_to')
+    .select('assigned_to, personal_google_event_id, family_google_event_id, occurrence_date, due_at, template_id')
     .eq('id', occurrenceId)
     .single()
 
@@ -34,6 +34,15 @@ export async function toggleOccurrence(occurrenceId: string, done: boolean) {
       completed_by: done ? user.id : null,
     })
     .eq('id', occurrenceId)
+
+  if (done) {
+    const { data: admin } = await supabase.from('profiles').select('id, family_calendar_id').eq('role', 'admin').limit(1).maybeSingle()
+    await Promise.allSettled([
+      occurrence.personal_google_event_id ? deleteCalendarEvent(occurrence.assigned_to, 'primary', occurrence.personal_google_event_id) : Promise.resolve(),
+      occurrence.family_google_event_id && admin?.family_calendar_id ? deleteCalendarEvent(admin.id, admin.family_calendar_id, occurrence.family_google_event_id) : Promise.resolve(),
+    ])
+    await supabase.from('chore_occurrences').update({ personal_google_event_id: null, family_google_event_id: null }).eq('id', occurrenceId)
+  }
   revalidatePath('/')
 }
 
@@ -164,7 +173,19 @@ export async function updateCatalogTask(id: string, title: string) {
   const cleanTitle = title.trim().slice(0, 120)
   if (profile?.role !== 'admin' || !cleanTitle) return
   await supabase.from('chore_templates').update({ title: cleanTitle }).eq('id', id)
+  const [{ data: occurrences }, { data: admin }] = await Promise.all([
+    supabase.from('chore_occurrences').select('id, assigned_to, occurrence_date, due_at, personal_google_event_id, family_google_event_id').eq('template_id', id).eq('status', 'open'),
+    supabase.from('profiles').select('id, family_calendar_id').eq('role', 'admin').limit(1).maybeSingle(),
+  ])
+  for (const occurrence of occurrences ?? []) {
+    const eventInput = { title: cleanTitle, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
+    await Promise.allSettled([
+      occurrence.personal_google_event_id ? updateCalendarEvent(occurrence.assigned_to, 'primary', occurrence.personal_google_event_id, eventInput) : Promise.resolve(),
+      occurrence.family_google_event_id && admin?.family_calendar_id ? updateCalendarEvent(admin.id, admin.family_calendar_id, occurrence.family_google_event_id, eventInput) : Promise.resolve(),
+    ])
+  }
   revalidatePath('/admin')
+  revalidatePath('/')
 }
 
 export async function saveFamilyCalendar(calendarId: string) {
