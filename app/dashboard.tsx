@@ -390,16 +390,11 @@ export default function Dashboard({
             return (
                       <div
                         key={task.occurrenceId}
-                        className={`group relative flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${celebratingId === task.occurrenceId ? 'chore-celebrating' : ''} ${
+                        className={`group relative flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${
                           task.done ? 'border-[#e1eae4] bg-[#f7fbf8]' : 'border-[#eeede7] bg-[#fdfcf9]'
                         }`}
                       >
-                        {celebratingId === task.occurrenceId && <>
-                          <span className="completion-spark completion-spark-one" aria-hidden="true" />
-                          <span className="completion-spark completion-spark-two" aria-hidden="true" />
-                          <span className="completion-spark completion-spark-three" aria-hidden="true" />
-                          <span className="completion-message" role="status">Lovely work</span>
-                        </>}
+                        {celebratingId === task.occurrenceId && <span className="completion-confetti" aria-hidden="true"><i /><i /><i /><i /><i /><i /></span>}
                         <button
                 onClick={() => runToggleChore(task)}
                 disabled={pending || !canEdit}
@@ -411,7 +406,7 @@ export default function Dashboard({
                           }`}
                           aria-label={task.done ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
                         >
-                          <Check className={`size-4 ${celebratingId === task.occurrenceId ? 'check-pop' : ''}`} />
+                          <Check className="size-4" />
                         </button>
                         <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${tone}`}>
                           <ClipboardList className="size-[17px]" />
