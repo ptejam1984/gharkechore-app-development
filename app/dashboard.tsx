@@ -151,9 +151,24 @@ export default function Dashboard({
 
   useEffect(() => {
     const theme = profile.theme ?? 'system'
-    document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
-    document.documentElement.classList.toggle('light', theme === 'light')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
+    document.documentElement.classList.remove('dark', 'light')
+    document.documentElement.classList.add(useDark ? 'dark' : 'light')
   }, [profile.theme])
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      if ((profile.theme ?? 'system') !== 'system') return
+      document.documentElement.classList.remove('dark', 'light')
+      document.documentElement.classList.add(media.matches ? 'dark' : 'light')
+    }
+    media.addEventListener('change', handleChange)
+    return () => media.removeEventListener('change', handleChange)
+  }, [profile.theme])
+
+  
 
   const isAdmin = profile.role === 'admin'
   
