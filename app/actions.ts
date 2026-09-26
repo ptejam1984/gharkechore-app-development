@@ -107,6 +107,24 @@ export async function removeShoppingItem(id: string) {
   revalidatePath('/')
 }
 
+export async function addCatalogTask(category: string, title: string) {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return
+  const cleanCategory = category.trim().slice(0, 80) || 'General'
+  const cleanTitle = title.trim().slice(0, 120)
+  if (!cleanTitle) return
+  await supabase.from('chore_templates').insert({
+    title: cleanTitle,
+    category: cleanCategory,
+    frequency: 'on_demand',
+    active: false,
+    configuration_complete: true,
+    created_by: user.id,
+  })
+  revalidatePath('/admin')
+}
+
 export async function updateProfilePreferences(input: {
   displayName: string
   avatarKey: string
