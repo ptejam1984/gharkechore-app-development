@@ -6,22 +6,19 @@ export const metadata: Metadata = {
   title: 'GharKeChore · Home, together',
   description: 'A calm, shared space for family chores, meals and the week ahead.',
   generator: 'v0.app',
+  applicationName: 'GharKeChore',
+  appleWebApp: {
+    capable: true,
+    title: 'GharKeChore',
+    statusBarStyle: 'default',
+  },
   icons: {
     icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/gharke-chore-icon.png', type: 'image/png' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
     ],
-    apple: '/apple-icon.png',
+    apple: '/apple-touch-icon.png',
   },
 }
 
