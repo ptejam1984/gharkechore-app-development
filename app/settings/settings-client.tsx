@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { ArrowLeft, Bell, Check, Leaf, Moon, Palette, Save, Star, Sun, UserRound } from 'lucide-react'
 import { updateProfilePreferences } from '@/app/actions'
 import { CalendarDays } from 'lucide-react'
@@ -24,6 +24,12 @@ export default function SettingsClient({ member }: { member: Member }) {
   const [message, setMessage] = useState('')
   const [pending, startTransition] = useTransition()
 
+  useEffect(() => {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && prefersDark))
+    document.documentElement.classList.toggle('light', theme === 'light')
+  }, [theme])
+
   function toggleNotifications() {
     if (!notifications && 'Notification' in window) {
       Notification.requestPermission().then((permission) => {
@@ -37,7 +43,8 @@ export default function SettingsClient({ member }: { member: Member }) {
   function save() {
     startTransition(async () => {
       await updateProfilePreferences({ displayName, avatarKey, theme, notificationsEnabled: notifications })
-      document.documentElement.dataset.theme = theme
+      document.documentElement.classList.toggle('dark', theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches))
+      document.documentElement.classList.toggle('light', theme === 'light')
       setMessage('Settings saved')
       window.setTimeout(() => setMessage(''), 2500)
     })
