@@ -41,6 +41,7 @@ export async function addChore(input: {
   assigneeId: string
   frequency: 'once' | 'daily' | 'weekly'
   date: string
+  time?: string
   weekdays?: number[]
 }) {
   const clean = input.title.trim()
@@ -53,6 +54,7 @@ export async function addChore(input: {
   const frequency = input.frequency === 'once' ? 'on_demand' : input.frequency
   const { data: template } = await supabase.from('chore_templates').insert({
     title: clean, frequency, active: true, configuration_complete: true, created_by: user.id,
+    due_time: input.time || null,
     weekday: input.frequency === 'weekly' ? (input.weekdays?.[0] ?? 1) : null,
   }).select('id').single()
   if (!template) return
@@ -65,7 +67,12 @@ export async function addChore(input: {
     day.setDate(start.getDate() + i)
     if (input.frequency === 'daily' || input.frequency === 'once' || (input.weekdays ?? []).includes(day.getDay())) dates.push(iso(day))
   }
-  await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({ template_id: template.id, assigned_to: assigneeId, occurrence_date: occurrenceDate })))
+  await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({
+    template_id: template.id,
+    assigned_to: assigneeId,
+    occurrence_date: occurrenceDate,
+    due_at: input.time ? `${occurrenceDate}T${input.time}:00+00:00` : null,
+  })))
   revalidatePath('/')
 } 
 

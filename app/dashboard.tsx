@@ -79,6 +79,7 @@ export default function Dashboard({
   const [taskAssignee, setTaskAssignee] = useState(profile.id)
   const [taskFrequency, setTaskFrequency] = useState<'once' | 'daily' | 'weekly'>('once')
   const [taskDate, setTaskDate] = useState(new Date().toISOString().slice(0, 10))
+  const [taskTime, setTaskTime] = useState('')
   const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
   const [pending, startTransition] = useTransition()
@@ -105,7 +106,7 @@ export default function Dashboard({
     const title = newChore.trim()
     if (!title) return
     startTransition(async () => {
-      await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, weekdays: taskDays })
+      await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
       setNewChore('')
       setShowAdd(false)
     })
@@ -528,6 +529,7 @@ export default function Dashboard({
                   <select value={taskFrequency} onChange={(e) => setTaskFrequency(e.target.value as typeof taskFrequency)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none"><option value="once">One time</option><option value="daily">Every day</option><option value="weekly">Selected days</option></select>
                 </label>
                 <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Start date<input type="date" value={taskDate} onChange={(e) => setTaskDate(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
+                <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">Time <span className="font-normal text-[#a0a7a1]">optional</span><input type="time" value={taskTime} onChange={(e) => setTaskTime(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none" /></label>
               </div>
               {taskFrequency === 'weekly' && <div className="flex flex-wrap gap-2">{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day, index) => <button type="button" key={day} onClick={() => setTaskDays((days) => days.includes(index) ? days.filter((d) => d !== index) : [...days, index])} className={`rounded-full px-3 py-1.5 text-xs font-bold ${taskDays.includes(index) ? 'bg-[#244c46] text-white' : 'bg-[#f2f3ed] text-[#6f7973]'}`}>{day}</button>)}</div>}
               <button onClick={submitChore} disabled={pending || !newChore.trim()} className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50">Add task</button>
