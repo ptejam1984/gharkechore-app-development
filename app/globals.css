@@ -166,58 +166,6 @@
   --sidebar-ring: oklch(0.58 0.08 165);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light):not(.dark) {
-    color-scheme: dark;
-    --background: oklch(0.2 0.018 165);
-    --foreground: oklch(0.94 0.012 155);
-    --card: oklch(0.25 0.02 165);
-    --card-foreground: oklch(0.94 0.012 155);
-    --popover: oklch(0.25 0.02 165);
-    --popover-foreground: oklch(0.94 0.012 155);
-    --primary: oklch(0.52 0.075 165);
-    --primary-foreground: oklch(0.97 0.008 95);
-    --secondary: oklch(0.27 0.03 75);
-    --secondary-foreground: oklch(0.78 0.08 80);
-    --muted: oklch(0.28 0.02 165);
-    --muted-foreground: oklch(0.68 0.02 155);
-    --accent: oklch(0.28 0.03 165);
-    --accent-foreground: oklch(0.76 0.08 165);
-    --destructive: oklch(0.68 0.1 18);
-    --destructive-foreground: oklch(0.15 0.01 18);
-    --border: oklch(1 0 0 / 12%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.58 0.08 165);
-    --success: oklch(0.65 0.08 165);
-    --success-foreground: oklch(0.15 0.02 165);
-    --cta: oklch(0.78 0.08 80);
-    --cta-foreground: oklch(0.22 0.03 55);
-    --mint: oklch(0.76 0.08 165);
-    --mint-tint: oklch(0.3 0.035 165);
-    --peach: oklch(0.75 0.08 45);
-    --peach-tint: oklch(0.3 0.04 40);
-    --lavender: oklch(0.76 0.07 290);
-    --lavender-tint: oklch(0.28 0.035 290);
-    --gold: oklch(0.78 0.08 80);
-    --gold-tint: oklch(0.28 0.04 75);
-    --rose: oklch(0.74 0.07 355);
-    --rose-tint: oklch(0.3 0.04 355);
-    --chart-1: oklch(0.76 0.08 165);
-    --chart-2: oklch(0.75 0.08 45);
-    --chart-3: oklch(0.76 0.07 290);
-    --chart-4: oklch(0.78 0.08 80);
-    --chart-5: oklch(0.74 0.07 355);
-    --sidebar: oklch(0.22 0.02 165);
-    --sidebar-foreground: oklch(0.94 0.012 155);
-    --sidebar-primary: oklch(0.52 0.075 165);
-    --sidebar-primary-foreground: oklch(0.97 0.008 95);
-    --sidebar-accent: oklch(0.28 0.03 165);
-    --sidebar-accent-foreground: oklch(0.76 0.08 165);
-    --sidebar-border: oklch(1 0 0 / 12%);
-    --sidebar-ring: oklch(0.58 0.08 165);
-  }
-}
-
 @layer base {
   *,
   *::before,
