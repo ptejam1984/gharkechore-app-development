@@ -26,9 +26,9 @@ export default async function AdminPage() {
       .limit(50),
   ])
 
-  const catalog = (templates ?? []).reduce<Record<string, string[]>>((groups, template: any) => {
+  const catalog = (templates ?? []).reduce<Record<string, Array<{ id: string; title: string }>>>((groups, template: any) => {
     const category = template.category ?? 'General'
-    groups[category] = [...(groups[category] ?? []), template.title]
+    groups[category] = [...(groups[category] ?? []), { id: template.id, title: template.title }]
     return groups
   }, {})
 
