@@ -353,7 +353,7 @@ export default function Dashboard({
             ))}
           </div>
 
-          <div className="min-w-0 grid gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+          <div className="grid min-w-0 grid-cols-1 gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex min-w-0 flex-col gap-3 sm:gap-6">
               <section id="today" className="w-full max-w-full min-w-0 scroll-mt-4 rounded-[14px] border border-[#e8e6de] bg-white p-2.5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
