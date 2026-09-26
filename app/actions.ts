@@ -91,7 +91,8 @@ export async function addChore(input: {
         if (syncError) throw syncError
       } catch (error) {
         console.error('[v0] Google Calendar task sync failed:', error)
-        throw new Error(error instanceof Error ? error.message : 'Google Calendar sync failed')
+        // Calendar sync is best-effort: the chore must still be created when a
+        // provider authorization has expired or the selected calendar is unavailable.
       }
     }
   }
