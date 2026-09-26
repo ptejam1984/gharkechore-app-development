@@ -91,6 +91,8 @@ export default function Dashboard({
   const remainingShopping = shopping.filter((s) => !s.purchased).length
 
   function runToggleChore(item: ChoreItem) {
+    const canEdit = isAdmin || item.personId === profile.id
+    if (!canEdit) return
     startTransition(() => toggleOccurrence(item.occurrenceId, !item.done))
   }
 
@@ -272,9 +274,10 @@ export default function Dashboard({
                       Nothing here yet. Enjoy the calm.
                     </div>
                   )}
-                  {visibleChores.map((task, index) => {
-                    const tone = personTones[tonePool[index % tonePool.length]]
-                    return (
+          {visibleChores.map((task, index) => {
+            const tone = personTones[tonePool[index % tonePool.length]]
+            const canEdit = isAdmin || task.personId === profile.id
+            return (
                       <div
                         key={task.occurrenceId}
                         className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${
@@ -282,9 +285,10 @@ export default function Dashboard({
                         }`}
                       >
                         <button
-                          onClick={() => runToggleChore(task)}
-                          disabled={pending}
-                          className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                onClick={() => runToggleChore(task)}
+                disabled={pending || !canEdit}
+                title={canEdit ? (task.done ? 'Undo completion' : 'Mark complete') : 'Only the assignee or an admin can change this'}
+                className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition ${
                             task.done
                               ? 'border-[#5a9b8c] bg-[#5a9b8c] text-white'
                               : 'border-[#d6ddd8] text-transparent hover:border-[#5a9b8c]'
