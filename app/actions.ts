@@ -117,6 +117,15 @@ export async function removeShoppingItem(id: string) {
   revalidatePath('/')
 }
 
+export async function updateCatalogTask(id: string, title: string) {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const cleanTitle = title.trim().slice(0, 120)
+  if (profile?.role !== 'admin' || !cleanTitle) return
+  await supabase.from('chore_templates').update({ title: cleanTitle }).eq('id', id)
+  revalidatePath('/admin')
+}
+
 export async function addCatalogTask(category: string, title: string) {
   const { supabase, user } = await requireUser()
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
