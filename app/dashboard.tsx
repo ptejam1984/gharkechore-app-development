@@ -49,6 +49,34 @@ const mealTones: Record<string, string> = {
 
 const dotColors = ['bg-[#d9c7a7]', 'bg-[#b8d6ce]', 'bg-[#e6bfd0]', 'bg-[#c8c5e7]']
 
+const taskCategories = {
+  Kitchen: ['Wash Utensils', 'Load Dishwasher', 'Unload Dishwasher', 'Clean Kitchen', 'Clean Fridge', 'Wipe Counters'],
+  Laundry: ['Wash Clothes', 'Dry Clothes', 'Fold Clothes', 'Iron Clothes', 'Put Clothes Away', 'Change Bedsheets'],
+  Cleaning: ['Vacuum', 'Sweep Floor', 'Mop Floor', 'Dust Surfaces', 'Clean Bathroom', 'Clean Windows', 'Tidy Room'],
+  Meals: ['Make Breakfast', 'Cook Lunch', 'Cook Dinner', 'Prepare Snacks', 'Pack Lunch', 'Plan Meals', 'Set Table', 'Clear Table'],
+  Shopping: ['Buy Groceries', 'Buy Essentials', 'Collect Order', 'Return Item'],
+  'Bins & Garden': ['Take Bins Out', 'Bring Bins In', 'Empty Bins', 'Sort Recycling', 'Mow Lawn', 'Water Plants'],
+  'Study & Work': ['Study', 'Do Homework', 'Read', 'Revise', 'Practise Skill', 'Pack School Bag'],
+  Family: ['School Drop-off', 'School Pick-up', 'Help Family'],
+  'Personal & Admin': ['Exercise', 'Book Appointment', 'Pay Bill', 'Collect Prescription', 'Fix Something'],
+} as const
+
+const frequentTasks = ['Wash Utensils', 'Tidy Room', 'Take Bins Out', 'Buy Groceries', 'Clear Table', 'Vacuum']
+
+function editDistance(a: string, b: string) {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i)
+  for (let i = 1; i <= a.length; i++) {
+    let previous = row[0]
+    row[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const current = row[j]
+      row[j] = a[i - 1] === b[j - 1] ? previous : Math.min(previous, row[j - 1], current) + 1
+      previous = current
+    }
+  }
+  return row[b.length]
+}
+
 function Countdown({ dueAt, done }: { dueAt: string | null; done: boolean }) {
   const [minutes, setMinutes] = useState<number | null>(null)
 
@@ -105,6 +133,8 @@ export default function Dashboard({
   const [selectedPerson, setSelectedPerson] = useState('Everyone')
   const [showAdd, setShowAdd] = useState(false)
   const [newChore, setNewChore] = useState('')
+  const [taskSearch, setTaskSearch] = useState('')
+  const [taskCategory, setTaskCategory] = useState<string | null>(null)
   const [taskAssignee, setTaskAssignee] = useState(profile.id)
   const [taskFrequency, setTaskFrequency] = useState<'once' | 'daily' | 'weekly'>('once')
   const [taskDate, setTaskDate] = useState(() => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London' }).format(new Date()))
@@ -124,6 +154,19 @@ export default function Dashboard({
   const nextUp = chores.find((c) => !c.done)
   const dinner = meals.find((m) => m.slot === 'dinner')
   const remainingShopping = shopping.filter((s) => !s.purchased).length
+  const normalizedSearch = taskSearch.trim().toLowerCase()
+  const categoryMatches = Object.keys(taskCategories).filter((category) => {
+    const value = category.toLowerCase()
+    return !normalizedSearch || value.startsWith(normalizedSearch) || value.includes(normalizedSearch) || editDistance(normalizedSearch, value) <= 2
+  })
+  const pickerTasks = taskCategory
+    ? [...taskCategories[taskCategory as keyof typeof taskCategories]].filter((task) => !normalizedSearch || task.toLowerCase().startsWith(normalizedSearch) || task.toLowerCase().includes(normalizedSearch)).sort((a, b) => {
+        const aPrefix = a.toLowerCase().startsWith(normalizedSearch) ? 0 : 1
+        const bPrefix = b.toLowerCase().startsWith(normalizedSearch) ? 0 : 1
+        return aPrefix - bPrefix || a.localeCompare(b)
+      })
+    : (normalizedSearch ? Object.values(taskCategories).flat().filter((task) => task.toLowerCase().startsWith(normalizedSearch) || task.toLowerCase().includes(normalizedSearch)).sort((a, b) => (a.toLowerCase().startsWith(normalizedSearch) ? 0 : 1) - (b.toLowerCase().startsWith(normalizedSearch) ? 0 : 1)) : frequentTasks)
+  const visiblePickerTasks = pickerTasks.length || !normalizedSearch ? pickerTasks : Object.values(taskCategories).flat().filter((task) => editDistance(normalizedSearch, task.toLowerCase()) <= 3).slice(0, 8)
 
   function runToggleChore(item: ChoreItem) {
     const canEdit = isAdmin || item.personId === profile.id
@@ -131,8 +174,13 @@ export default function Dashboard({
     startTransition(() => toggleOccurrence(item.occurrenceId, !item.done))
   }
 
+  function selectTask(title: string) {
+    setNewChore(title)
+    setTaskSearch(title)
+  }
+
   function submitChore() {
-    const title = newChore.trim()
+  const title = newChore.trim()
     if (!title) return
     startTransition(async () => {
       await addChore({ title, assigneeId: taskAssignee, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
@@ -558,7 +606,17 @@ export default function Dashboard({
             </div>
             <p className="mt-2 text-sm text-[#87918a]">Add it once, every day, or on selected weekdays.</p>
             <div className="mt-6 flex flex-col gap-3">
-              <input value={newChore} onChange={(e) => setNewChore(e.target.value)} autoFocus className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="What needs doing?" />
+              <div className="relative">
+                <input value={taskSearch} onChange={(e) => { setTaskSearch(e.target.value); setNewChore(e.target.value) }} onKeyDown={(e) => { if (e.key === 'Enter' && visiblePickerTasks[0]) selectTask(visiblePickerTasks[0]) }} autoFocus className="h-12 w-full rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]" placeholder="Search a task or category..." aria-label="Search task or category" />
+                {taskCategory && <div className="mt-2 flex items-center gap-2"><span className="inline-flex items-center gap-1 rounded-full bg-[#e3f0eb] px-3 py-1 text-xs font-bold text-[#397568]">{taskCategory}<button type="button" onClick={() => setTaskCategory(null)} aria-label="Remove category"><X className="size-3" /></button></span></div>}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {!taskCategory && categoryMatches.slice(0, 4).map((category) => <button type="button" key={category} onClick={() => { setTaskCategory(category); setTaskSearch('') }} className="rounded-full bg-[#f2f3ed] px-3 py-1.5 text-xs font-semibold text-[#53635c] hover:bg-[#e3f0eb]">{category}</button>)}
+                </div>
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2" role="listbox" aria-label="Suggested tasks">
+                  {visiblePickerTasks.map((task) => <button type="button" key={task} onClick={() => selectTask(task)} className="flex min-h-11 items-center justify-between rounded-xl border border-[#e8e6de] bg-white px-3 text-left text-sm text-[#34423c] hover:border-[#8bb9aa] hover:bg-[#f3f8f5]" role="option"><span>{task}</span><ChevronRight className="size-4 text-[#9aa8a0]" /></button>)}
+                </div>
+                <button type="button" onClick={() => { setNewChore(taskSearch.trim()); setTaskSearch(taskSearch.trim()) }} className="mt-3 text-xs font-bold text-[#397568] hover:underline">+ Add custom task</button>
+              </div>
               {isAdmin && <label className="flex flex-col gap-1 text-xs font-bold text-[#6f7973]">For who?
                 <select value={taskAssignee} onChange={(e) => setTaskAssignee(e.target.value)} className="h-11 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm font-normal outline-none">
                   {members.map((member) => <option key={member.id} value={member.id}>{member.display_name}{member.id === profile.id ? ' (me)' : ''}</option>)}
