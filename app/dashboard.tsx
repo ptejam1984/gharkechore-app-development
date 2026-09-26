@@ -299,24 +299,18 @@ export default function Dashboard({
 
         <section className="min-w-0 flex-1 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:px-8 sm:pb-10 lg:px-12">
           <header className="flex items-center justify-between py-4 sm:py-6 lg:py-8">
-            <div className="flex items-center gap-2.5 lg:hidden">
-              <button className="flex size-11 items-center justify-center rounded-xl hover:bg-[#efeee7]" aria-label="Open menu">
+            <div className="flex min-w-0 items-center gap-2.5 lg:hidden">
+              <button className="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-[#efeee7]" aria-label="Open menu">
                 <Menu className="size-5" />
               </button>
-              <div className="flex items-center gap-2">
-                <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-8 rounded-lg" />
-                <span className="font-serif text-lg font-semibold">GharKeChore</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <img src="/gharke-chore-brand.png" alt="GharKeChore" className="size-8 shrink-0 rounded-lg" />
+                <span className="truncate font-serif text-lg font-semibold">GharKeChore</span>
               </div>
             </div>
-            <div className="hidden lg:block">
-              <p className="text-sm font-medium text-[#87918a]">{dateLabel}</p>
-              <h1 className="mt-1 font-serif text-[32px] font-semibold tracking-[-0.03em]">
-                {greeting}, {profile.display_name}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <button
-                className="relative flex size-11 items-center justify-center rounded-xl text-[#6f7973] hover:bg-[#efeee7]"
+                className="relative hidden size-11 items-center justify-center rounded-xl text-[#6f7973] hover:bg-[#efeee7] sm:flex"
                 aria-label="Notifications"
               >
                 <Bell className="size-[19px]" />
@@ -324,7 +318,7 @@ export default function Dashboard({
               </button>
               <button
                 onClick={() => startTransition(() => signOut())}
-                className="flex items-center gap-2 rounded-xl border border-[#e5e3db] bg-white px-3 py-2 text-sm font-semibold shadow-sm"
+                className="flex h-11 items-center gap-2 rounded-xl border border-[#e5e3db] bg-white px-2.5 py-2 text-sm font-semibold shadow-sm sm:px-3"
               >
                 <div className="flex size-6 items-center justify-center rounded-full bg-[#b8d6ce] text-[10px] text-[#294c47]">
                   {initial}
