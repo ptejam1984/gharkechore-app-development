@@ -64,7 +64,18 @@ function Countdown({ dueAt, done }: { dueAt: string | null; done: boolean }) {
   }, [dueAt, done])
 
   if (minutes === null) return null
-  return <span className={minutes <= 15 ? 'font-bold text-[#b6775a]' : 'font-semibold text-[#5a8177]'}>{minutes === 0 ? 'Due now' : `${minutes} min left`}</span>
+  const days = Math.floor(minutes / 1440)
+  const hours = Math.floor((minutes % 1440) / 60)
+  const remainingMinutes = minutes % 60
+  const countdown = minutes === 0
+    ? 'Due now'
+    : days > 0
+      ? `${days}d${hours > 0 ? ` ${hours}h` : ''} left`
+      : hours > 0
+        ? `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ''} left`
+        : `${minutes} min left`
+
+  return <span className={minutes <= 15 ? 'font-bold text-[#b6775a]' : 'font-semibold text-[#5a8177]'}>{countdown}</span>
 }
 
 type Props = {
