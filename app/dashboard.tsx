@@ -355,7 +355,7 @@ export default function Dashboard({
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
             <div className="flex flex-col gap-6">
-              <section id="today" className="scroll-mt-4 rounded-[22px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
+              <section id="today" className="min-w-0 scroll-mt-4 rounded-[22px] border border-[#e8e6de] bg-white p-4 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -424,7 +424,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="this-week" className="scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
+              <section id="this-week" className="min-w-0 scroll-mt-6 rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
@@ -434,7 +434,8 @@ export default function Dashboard({
                     <CalendarDays className="size-[18px]" />
                   </button>
                 </div>
-                <div className="mt-5 grid grid-cols-7 gap-1.5 sm:gap-2">
+                <div className="mt-5 min-w-0 overflow-x-auto overscroll-x-contain pb-1">
+                  <div className="grid min-w-[448px] grid-cols-7 gap-1.5 sm:min-w-0 sm:gap-2">
                   {week.map((item) => (
                     <button
                       key={item.iso}
@@ -454,6 +455,7 @@ export default function Dashboard({
                       />
                     </button>
                   ))}
+                  </div>
                 </div>
                 {selectedWeekDay && (() => {
                   const selected = week.find((day) => day.iso === selectedWeekDay)
