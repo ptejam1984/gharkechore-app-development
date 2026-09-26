@@ -1,0 +1,540 @@
+'use client'
+
+import { useMemo, useState, useTransition } from 'react'
+import {
+  Bell,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  ClipboardList,
+  Clock3,
+  CookingPot,
+  Flower2,
+  Home,
+  LogOut,
+  Menu,
+  Plus,
+  RefreshCw,
+  Settings2,
+  ShoppingBasket,
+  Trash2,
+  Utensils,
+  X,
+} from 'lucide-react'
+import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay } from '@/lib/data'
+import {
+  addOneOffChore,
+  addShoppingItem,
+  removeShoppingItem,
+  signOut,
+  toggleOccurrence,
+  toggleShoppingItem,
+} from './actions'
+
+const personTones: Record<string, string> = {
+  mint: 'bg-[#e3f0eb] text-[#4f8e80]',
+  peach: 'bg-[#f8e9df] text-[#b6775a]',
+  lavender: 'bg-[#eceafa] text-[#756fa8]',
+  sand: 'bg-[#f3ecdc] text-[#a1834f]',
+}
+
+const tonePool = ['mint', 'peach', 'lavender', 'sand']
+
+const mealTones: Record<string, string> = {
+  breakfast: 'bg-[#f3ecdc]',
+  lunch: 'bg-[#f8e9df]',
+  dinner: 'bg-[#e3f0eb]',
+}
+
+const dotColors = ['bg-[#d9c7a7]', 'bg-[#b8d6ce]', 'bg-[#e6bfd0]', 'bg-[#c8c5e7]']
+
+type Props = {
+  profile: Member
+  members: Member[]
+  chores: ChoreItem[]
+  meals: MealItem[]
+  shopping: ShoppingItem[]
+  week: WeekDay[]
+  pendingChanges: number
+  dateLabel: string
+  greeting: string
+}
+
+export default function Dashboard({
+  profile,
+  members,
+  chores,
+  meals,
+  shopping,
+  week,
+  pendingChanges,
+  dateLabel,
+  greeting,
+}: Props) {
+  const [activeNav, setActiveNav] = useState('Today')
+  const [selectedPerson, setSelectedPerson] = useState('Everyone')
+  const [showAdd, setShowAdd] = useState(false)
+  const [newChore, setNewChore] = useState('')
+  const [newItem, setNewItem] = useState('')
+  const [pending, startTransition] = useTransition()
+
+  const isAdmin = profile.role === 'admin'
+  const initial = profile.display_name.charAt(0).toUpperCase()
+
+  const filterNames = useMemo(() => ['Everyone', ...members.map((m) => m.display_name)], [members])
+  const completed = useMemo(() => chores.filter((c) => c.done).length, [chores])
+  const visibleChores =
+    selectedPerson === 'Everyone' ? chores : chores.filter((c) => c.person === selectedPerson)
+
+  const nextUp = chores.find((c) => !c.done)
+  const dinner = meals.find((m) => m.slot === 'dinner')
+  const remainingShopping = shopping.filter((s) => !s.purchased).length
+
+  function runToggleChore(item: ChoreItem) {
+    startTransition(() => toggleOccurrence(item.occurrenceId, !item.done))
+  }
+
+  function submitChore() {
+    const title = newChore.trim()
+    if (!title) return
+    startTransition(async () => {
+      await addOneOffChore(title)
+      setNewChore('')
+      setShowAdd(false)
+    })
+  }
+
+  function submitItem() {
+    const label = newItem.trim()
+    if (!label) return
+    startTransition(async () => {
+      await addShoppingItem(label)
+      setNewItem('')
+    })
+  }
+
+  return (
+    <main className="min-h-screen bg-[#f8f7f2] text-[#27322f]">
+      <div className="mx-auto flex min-h-screen max-w-[1440px]">
+        <aside className="hidden w-[248px] shrink-0 border-r border-[#e5e3db] bg-[#fbfaf6] px-5 py-7 lg:flex lg:flex-col">
+          <div className="flex items-center gap-3 px-2">
+            <div className="flex size-10 items-center justify-center rounded-[14px] bg-[#244c46] text-[#f4e4c8]">
+              <Flower2 className="size-5" />
+            </div>
+            <div>
+              <div className="font-serif text-[20px] font-semibold tracking-[-0.02em]">GharKeChore</div>
+              <div className="text-[11px] text-[#87918a]">home, together</div>
+            </div>
+          </div>
+          <div className="mt-12 flex flex-col gap-2">
+            {[
+              { label: 'Today', icon: Home },
+              { label: 'This week', icon: CalendarDays },
+              { label: 'Meals', icon: CookingPot },
+              { label: 'Shopping', icon: ShoppingBasket },
+              { label: 'Changes', icon: RefreshCw },
+            ].map(({ label, icon: Icon }) => (
+              <button
+                key={label}
+                onClick={() => setActiveNav(label)}
+                className={`flex h-11 items-center gap-3 rounded-xl px-3 text-left text-sm transition ${
+                  activeNav === label
+                    ? 'bg-[#e8f0eb] font-semibold text-[#244c46]'
+                    : 'text-[#6f7973] hover:bg-[#f0efe8]'
+                }`}
+              >
+                <Icon className="size-[18px]" />
+                {label}
+                {label === 'Changes' && pendingChanges > 0 && (
+                  <span className="ml-auto rounded-full bg-[#e6bfd0] px-2 py-0.5 text-[10px] font-bold text-[#613c4b]">
+                    {pendingChanges}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="mt-auto flex flex-col gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => setActiveNav('Admin')}
+                className={`flex h-11 items-center gap-3 rounded-xl px-3 text-left text-sm ${
+                  activeNav === 'Admin' ? 'bg-[#e8f0eb] font-semibold text-[#244c46]' : 'text-[#6f7973]'
+                }`}
+              >
+                <Settings2 className="size-[18px]" />
+                Admin
+              </button>
+            )}
+            <div className="mt-4 flex items-center gap-3 border-t border-[#e5e3db] px-2 pt-5">
+              <div className="flex size-9 items-center justify-center rounded-full bg-[#b8d6ce] text-xs font-bold text-[#294c47]">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold">{profile.display_name}</div>
+                <div className="text-xs capitalize text-[#87918a]">{profile.role}</div>
+              </div>
+              <button
+                onClick={() => startTransition(() => signOut())}
+                className="ml-auto rounded-lg p-1.5 text-[#87918a] hover:bg-[#f0efe8] hover:text-[#244c46]"
+                aria-label="Sign out"
+              >
+                <LogOut className="size-4" />
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <section className="min-w-0 flex-1 px-5 pb-10 sm:px-8 lg:px-12">
+          <header className="flex items-center justify-between py-6 lg:py-8">
+            <div className="flex items-center gap-3 lg:hidden">
+              <button className="rounded-lg p-2 hover:bg-[#efeee7]" aria-label="Open menu">
+                <Menu className="size-5" />
+              </button>
+              <span className="font-serif text-xl font-semibold">GharKeChore</span>
+            </div>
+            <div className="hidden lg:block">
+              <p className="text-sm font-medium text-[#87918a]">{dateLabel}</p>
+              <h1 className="mt-1 font-serif text-[32px] font-semibold tracking-[-0.03em]">
+                {greeting}, {profile.display_name}
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="relative rounded-xl p-2.5 text-[#6f7973] hover:bg-[#efeee7]"
+                aria-label="Notifications"
+              >
+                <Bell className="size-[19px]" />
+                {pendingChanges > 0 && <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[#c16b6b]" />}
+              </button>
+              <button
+                onClick={() => startTransition(() => signOut())}
+                className="flex items-center gap-2 rounded-xl border border-[#e5e3db] bg-white px-3 py-2 text-sm font-semibold shadow-sm"
+              >
+                <div className="flex size-6 items-center justify-center rounded-full bg-[#b8d6ce] text-[10px] text-[#294c47]">
+                  {initial}
+                </div>
+                <span className="hidden sm:inline">{profile.display_name}</span>
+                <LogOut className="size-4 text-[#87918a]" />
+              </button>
+            </div>
+          </header>
+
+          <div className="mb-7 lg:hidden">
+            <p className="text-sm font-medium text-[#87918a]">{dateLabel}</p>
+            <h1 className="mt-1 font-serif text-[29px] font-semibold tracking-[-0.03em]">
+              {greeting}, {profile.display_name}
+            </h1>
+          </div>
+
+          <div className="mb-8 flex items-center gap-2 overflow-x-auto pb-1">
+            {filterNames.map((name, index) => (
+              <button
+                key={name}
+                onClick={() => setSelectedPerson(name)}
+                className={`flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-2 text-xs font-semibold transition ${
+                  selectedPerson === name
+                    ? 'border-[#244c46] bg-[#244c46] text-white'
+                    : 'border-[#e5e3db] bg-white text-[#6f7973] hover:border-[#b8d6ce]'
+                }`}
+              >
+                <span className={`size-2 rounded-full ${dotColors[index % dotColors.length]}`} />
+                {name}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+            <div className="flex flex-col gap-6">
+              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-5 shadow-[0_8px_30px_rgba(54,67,61,0.04)] sm:p-7">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-serif text-[24px] font-semibold">Your chores</h2>
+                      <span className="rounded-full bg-[#f2eee4] px-2 py-1 text-[11px] font-bold text-[#967d54]">
+                        {completed}/{chores.length} done
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-[#87918a]">A little at a time makes a home.</p>
+                  </div>
+                  {isAdmin && (
+                    <button
+                      onClick={() => setShowAdd(true)}
+                      className="flex items-center gap-1.5 rounded-xl bg-[#edf3ef] px-3 py-2 text-xs font-bold text-[#244c46] hover:bg-[#e2eee7]"
+                    >
+                      <Plus className="size-4" />
+                      Add
+                    </button>
+                  )}
+                </div>
+                <div className="mt-6 flex flex-col gap-2.5">
+                  {visibleChores.length === 0 && (
+                    <div className="rounded-2xl border border-dashed border-[#e1ded3] bg-[#fdfcf9] px-4 py-10 text-center text-sm text-[#97a19b]">
+                      Nothing here yet. Enjoy the calm.
+                    </div>
+                  )}
+                  {visibleChores.map((task, index) => {
+                    const tone = personTones[tonePool[index % tonePool.length]]
+                    return (
+                      <div
+                        key={task.occurrenceId}
+                        className={`group flex items-center gap-3 rounded-2xl border px-3 py-3 transition sm:px-4 ${
+                          task.done ? 'border-[#e1eae4] bg-[#f7fbf8]' : 'border-[#eeede7] bg-[#fdfcf9]'
+                        }`}
+                      >
+                        <button
+                          onClick={() => runToggleChore(task)}
+                          disabled={pending}
+                          className={`flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                            task.done
+                              ? 'border-[#5a9b8c] bg-[#5a9b8c] text-white'
+                              : 'border-[#d6ddd8] text-transparent hover:border-[#5a9b8c]'
+                          }`}
+                          aria-label={task.done ? `Mark ${task.title} incomplete` : `Complete ${task.title}`}
+                        >
+                          <Check className="size-4" />
+                        </button>
+                        <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${tone}`}>
+                          <ClipboardList className="size-[17px]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className={`text-sm font-semibold ${task.done ? 'text-[#96a19b] line-through' : ''}`}>
+                            {task.title}
+                          </div>
+                          <div className="mt-0.5 flex items-center gap-2 text-xs text-[#97a19b]">
+                            <span>{task.person}</span>
+                            <span className="size-0.5 rounded-full bg-[#c3ccc6]" />
+                            <span>{task.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+
+              <section className="rounded-[24px] border border-[#e8e6de] bg-[#f2eee4] p-5 sm:p-7">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#967d54]">This week</p>
+                    <h2 className="mt-1 font-serif text-[24px] font-semibold">A week at a glance</h2>
+                  </div>
+                  <button className="rounded-lg p-1.5 text-[#967d54] hover:bg-[#e7dfcf]" aria-label="Open calendar">
+                    <CalendarDays className="size-[18px]" />
+                  </button>
+                </div>
+                <div className="mt-5 grid grid-cols-7 gap-1.5 sm:gap-2">
+                  {week.map((item) => (
+                    <button
+                      key={item.iso}
+                      onClick={() => setActiveNav('This week')}
+                      className={`rounded-2xl border p-2 text-center transition sm:p-3 ${
+                        item.isToday
+                          ? 'border-[#244c46] bg-[#244c46] text-white shadow-md'
+                          : 'border-[#e3dccd] bg-[#f8f5ed] text-[#6f7973] hover:border-[#b8d6ce]'
+                      }`}
+                    >
+                      <div className="text-[9px] font-bold tracking-wider opacity-70 sm:text-[10px]">{item.day}</div>
+                      <div className="mt-1 text-lg font-semibold sm:text-xl">{item.date}</div>
+                      <div
+                        className={`mx-auto mt-2 size-1.5 rounded-full ${
+                          item.tasks === 0 ? 'bg-transparent' : item.isToday ? 'bg-[#f4e4c8]' : 'bg-[#b8d6ce]'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-5 flex items-center gap-3 border-t border-[#e1d8c8] pt-4">
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-[#e7dfcf] text-[#967d54]">
+                    <Utensils className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-[#967d54]">Tonight&apos;s dinner</p>
+                    <p className="truncate text-sm font-semibold text-[#493d2d]">
+                      {dinner?.dish ?? 'Not planned yet'}
+                      {dinner?.personName && <span className="font-normal text-[#968c7b]"> · {dinner.personName}</span>}
+                    </p>
+                  </div>
+                  <ChevronRight className="ml-auto size-4 text-[#aa9e8b]" />
+                </div>
+              </section>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <section className="rounded-[24px] border border-[#e8e6de] bg-[#244c46] p-6 text-white shadow-[0_12px_35px_rgba(36,76,70,0.13)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[#b8d6ce]">
+                    <Clock3 className="size-4" />
+                    <span className="text-xs font-bold uppercase tracking-[0.15em]">Next up</span>
+                  </div>
+                </div>
+                <h2 className="mt-5 font-serif text-[26px] font-semibold">{nextUp?.title ?? 'All done for today'}</h2>
+                <p className="mt-1 text-sm text-[#b8d6ce]">
+                  {nextUp ? `${nextUp.person} · ${nextUp.time}` : 'A calm reset for the evening ahead.'}
+                </p>
+                <div className="mt-6 flex items-center justify-between border-t border-white/15 pt-4">
+                  <span className="text-xs text-[#b8d6ce]">{dateLabel}</span>
+                  {nextUp && (
+                    <button
+                      onClick={() => runToggleChore(nextUp)}
+                      disabled={pending}
+                      className="rounded-xl bg-[#f4e4c8] px-3 py-2 text-xs font-bold text-[#493d2d] hover:bg-white"
+                    >
+                      Done
+                    </button>
+                  )}
+                </div>
+              </section>
+
+              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
+                    <p className="mt-1 text-xs text-[#87918a]">{dateLabel}</p>
+                  </div>
+                  <button onClick={() => setActiveNav('Meals')} className="text-xs font-bold text-[#5a8177]">
+                    Edit
+                  </button>
+                </div>
+                <div className="mt-5 flex flex-col gap-4">
+                  {meals.map((meal) => (
+                    <div key={meal.slot} className="flex items-center gap-3">
+                      <div
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${mealTones[meal.slot]}`}
+                      >
+                        <Utensils className="size-4 text-[#6f7973]" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#a1aaa4]">{meal.slot}</p>
+                        <p className="truncate text-sm font-semibold text-[#3f4b46]">
+                          {meal.dish ?? 'Up to the family'}
+                        </p>
+                      </div>
+                      <span className="text-right text-[11px] text-[#97a19b]">{meal.personName ?? 'Unassigned'}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-[24px] border border-[#e8e6de] bg-white p-6 shadow-[0_8px_30px_rgba(54,67,61,0.04)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#f8e9df] text-[#b6775a]">
+                      <ShoppingBasket className="size-4" />
+                    </div>
+                    <div>
+                      <h2 className="font-serif text-[20px] font-semibold">Shopping</h2>
+                      <p className="text-xs text-[#87918a]">{remainingShopping} to buy</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-5 flex flex-col gap-2">
+                  {shopping.map((item) => (
+                    <div key={item.id} className="group flex items-center gap-3 rounded-xl px-1 py-1.5">
+                      <button
+                        onClick={() => startTransition(() => toggleShoppingItem(item.id, !item.purchased))}
+                        disabled={pending}
+                        className={`flex size-6 shrink-0 items-center justify-center rounded-md border-2 transition ${
+                          item.purchased
+                            ? 'border-[#5a9b8c] bg-[#5a9b8c] text-white'
+                            : 'border-[#d6ddd8] text-transparent hover:border-[#5a9b8c]'
+                        }`}
+                        aria-label={item.purchased ? `Mark ${item.label} not bought` : `Mark ${item.label} bought`}
+                      >
+                        <Check className="size-3.5" />
+                      </button>
+                      <span
+                        className={`flex-1 text-sm ${
+                          item.purchased ? 'text-[#a7b0aa] line-through' : 'font-medium text-[#3f4b46]'
+                        }`}
+                      >
+                        {item.label}
+                        {item.quantity && <span className="ml-1 text-xs text-[#a1aaa4]">· {item.quantity}</span>}
+                      </span>
+                      <button
+                        onClick={() => startTransition(() => removeShoppingItem(item.id))}
+                        disabled={pending}
+                        className="rounded-md p-1 text-[#c3ccc6] opacity-0 transition hover:text-[#c16b6b] group-hover:opacity-100"
+                        aria-label={`Remove ${item.label}`}
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {shopping.length === 0 && (
+                    <p className="px-1 py-4 text-center text-sm text-[#97a19b]">Nothing on the list.</p>
+                  )}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <input
+                    value={newItem}
+                    onChange={(e) => setNewItem(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) submitItem()
+                    }}
+                    className="h-10 flex-1 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-3 text-sm outline-none focus:border-[#5a9b8c]"
+                    placeholder="Add an item"
+                  />
+                  <button
+                    onClick={submitItem}
+                    disabled={pending || !newItem.trim()}
+                    className="flex size-10 items-center justify-center rounded-xl bg-[#244c46] text-white hover:bg-[#1c3d38] disabled:opacity-50"
+                    aria-label="Add shopping item"
+                  >
+                    <Plus className="size-4" />
+                  </button>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e5e3db] pt-5 text-xs text-[#97a19b]">
+            <span>GharKeChore · London time</span>
+            <div className="flex gap-4">
+              <button className="hover:text-[#244c46]">Need help</button>
+              <button className="hover:text-[#244c46]">Notification settings</button>
+            </div>
+          </footer>
+        </section>
+      </div>
+
+      {showAdd && (
+        <div className="fixed inset-0 z-10 flex items-end justify-center bg-[#27322f]/20 p-4 sm:items-center">
+          <div className="w-full max-w-md rounded-[24px] bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-2xl font-semibold">Add a one-off chore</h2>
+              <button
+                onClick={() => setShowAdd(false)}
+                className="rounded-lg p-2 text-[#87918a] hover:bg-[#f2f3ed]"
+                aria-label="Close"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <p className="mt-2 text-sm text-[#87918a]">
+              This will be visible to the family and won&apos;t change recurring schedules.
+            </p>
+            <div className="mt-6 flex flex-col gap-3">
+              <input
+                value={newChore}
+                onChange={(e) => setNewChore(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing && e.keyCode !== 229) submitChore()
+                }}
+                autoFocus
+                className="h-12 rounded-xl border border-[#e2e5df] bg-[#fbfcf9] px-4 text-sm outline-none focus:border-[#5a9b8c]"
+                placeholder="What needs doing?"
+              />
+              <button
+                onClick={submitChore}
+                disabled={pending || !newChore.trim()}
+                className="h-12 rounded-xl bg-[#244c46] text-sm font-bold text-white hover:bg-[#1c3d38] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Add chore
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  )
+}
