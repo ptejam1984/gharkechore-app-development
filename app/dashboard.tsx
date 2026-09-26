@@ -206,7 +206,7 @@ export default function Dashboard({
 
   function saveMeals() {
     startTransition(async () => {
-      for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', null)
+      for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', meal.responsibleId)
       setEditingMeals(false)
       router.refresh()
     })
@@ -530,7 +530,23 @@ export default function Dashboard({
                           {meal.dish ?? 'Up to the family'}
                         </p>
                       </div>
-                      <span className="max-w-[4.5rem] shrink-0 truncate text-right text-[10px] text-[#97a19b] sm:max-w-none sm:text-[11px]">{meal.personName ?? 'Unassigned'}</span>
+                      <select
+                    aria-label={`Assign ${meal.slot}`}
+                    value={meal.responsibleId ?? ''}
+                    onChange={(event) => {
+                      startTransition(async () => {
+                        await updateMeal(meal.slot, meal.dish ?? '', event.target.value || null)
+                        router.refresh()
+                      })
+                    }}
+                    disabled={pending}
+                    className="max-w-[5.75rem] shrink-0 truncate appearance-none rounded-lg border-0 bg-transparent px-1 py-1 text-right text-[10px] text-[#5a8177] outline-none ring-1 ring-transparent focus:ring-[#9bbdb3] disabled:opacity-60 sm:max-w-none sm:text-[11px]"
+                  >
+                    <option value="">Unassigned</option>
+                    {members.map((member) => (
+                      <option key={member.id} value={member.id}>{member.display_name}</option>
+                    ))}
+                  </select>
                     </div>
                   ))}
                 </div>
