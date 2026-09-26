@@ -151,18 +151,24 @@ export async function getTodayChores(supabase: DB, day: string): Promise<ChoreIt
 }
 
 export async function getTodayMeals(supabase: DB, day: string): Promise<MealItem[]> {
-  const { data } = await supabase
+  const { data: mealRows } = await supabase
     .from('meals')
-    .select('slot, dish_name, responsible:profiles(display_name)')
+    .select('slot, dish_name, responsible_profile_id')
     .eq('meal_date', day)
+
+  const profileIds = [...new Set((mealRows ?? []).map((row: any) => row.responsible_profile_id).filter(Boolean))]
+  const { data: profiles } = profileIds.length
+    ? await supabase.from('profiles').select('id, display_name').in('id', profileIds)
+    : { data: [] }
+  const profileNames = new Map((profiles ?? []).map((profile: any) => [profile.id, profile.display_name]))
 
   const slots: Array<MealItem['slot']> = ['breakfast', 'lunch', 'dinner']
   return slots.map((slot) => {
-    const row: any = (data ?? []).find((m: any) => m.slot === slot)
+    const row: any = (mealRows ?? []).find((meal: any) => meal.slot === slot)
     return {
       slot,
       dish: row?.dish_name ?? null,
-      personName: row?.responsible?.display_name ?? null,
+      personName: row?.responsible_profile_id ? profileNames.get(row.responsible_profile_id) ?? null : null,
     }
   })
 }
