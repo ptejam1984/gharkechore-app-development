@@ -24,7 +24,10 @@ export async function createCalendarEvent(userId: string, calendarId: string, in
       description: 'GharKeChore task',
       start: { dateTime: start.toISOString() },
       end: { dateTime: end.toISOString() },
-      reminders: { useDefault: true },
+      reminders: {
+        useDefault: false,
+        overrides: [{ method: 'popup', minutes: 30 }],
+      },
     }),
   })
   if (!response.ok) {
