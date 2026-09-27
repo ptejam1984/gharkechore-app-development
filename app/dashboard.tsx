@@ -431,8 +431,8 @@ export default function Dashboard({
           </div>
 
           <div className="grid min-w-0 grid-cols-1 gap-3 overflow-hidden sm:gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
-            <div className="flex min-w-0 flex-col gap-3 sm:gap-6">
-              <section id="today" className="w-full max-w-full min-w-0 scroll-mt-4 rounded-[14px] border border-border bg-card p-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
+            <div className="contents xl:flex xl:min-w-0 xl:flex-col xl:gap-6">
+              <section id="today" className="order-3 w-full xl:order-none max-w-full min-w-0 scroll-mt-4 rounded-[14px] border border-border bg-card p-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:scroll-mt-6 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -501,7 +501,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="this-week" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-secondary p-2.5 sm:rounded-[24px] sm:p-7">
+              <section id="this-week" className="order-4 w-full xl:order-none max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-secondary p-2.5 sm:rounded-[24px] sm:p-7">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary-foreground">This week</p>
@@ -559,8 +559,8 @@ export default function Dashboard({
               <MealWeekPlanner week={weekMeals} members={members} />
             </div>
 
-            <div className="flex flex-col gap-6">
-              <section className="w-full max-w-full min-w-0 overflow-hidden rounded-[14px] border border-border bg-primary p-3 text-primary-foreground sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(0,0,0,0.18)]">
+            <div className="contents xl:flex xl:flex-col xl:gap-6">
+              <section className="order-1 w-full max-w-full min-w-0 overflow-hidden rounded-[14px] border border-border bg-primary xl:order-none p-3 text-primary-foreground sm:rounded-[24px] sm:p-6 shadow-[0_12px_35px_rgba(0,0,0,0.18)]">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-primary-foreground/70">
                     <Clock3 className="size-4" />
@@ -585,7 +585,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="meals" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
+              <section id="meals" className="order-2 w-full xl:order-none max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
                 <div>
                   <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
                   <p className="mt-1 text-xs text-muted-foreground">{dateLabel}</p>
@@ -612,7 +612,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <section id="shopping" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
+              <section id="shopping" className="order-6 w-full xl:order-none max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-peach-tint text-peach">

@@ -65,7 +65,7 @@ export default function MealWeekPlanner({ week, members }: { week: WeekMealDay[]
   }
 
   return (
-    <section className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-secondary p-2.5 sm:rounded-[24px] sm:p-7">
+    <section className="order-5 w-full max-w-full min-w-0 scroll-mt-6 xl:order-none rounded-[14px] border border-border bg-secondary p-2.5 sm:rounded-[24px] sm:p-7">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary-foreground">Meal plan</p>
