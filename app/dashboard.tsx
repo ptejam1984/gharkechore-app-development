@@ -26,6 +26,7 @@ import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay, WeekMealDay } 
 import {
   addChore,
   addShoppingItem,
+  clearShoppingList,
   importStagedShoppingList,
   removeShoppingItem,
   signOut,
@@ -632,15 +633,30 @@ export default function Dashboard({
                       <p className="text-xs text-muted-foreground">{remainingShopping} to buy</p>
                     </div>
                   </div>
-                  {stagedShoppingCount > 0 && (
-                    <button
-                      onClick={() => startTransition(async () => { await importStagedShoppingList(); router.refresh() })}
-                      disabled={pending}
-                      className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-accent-foreground transition hover:bg-accent/80 disabled:opacity-50"
-                    >
-                      Import {stagedShoppingCount} from admin
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {stagedShoppingCount > 0 && (
+                      <button
+                        onClick={() => startTransition(async () => { await importStagedShoppingList(); router.refresh() })}
+                        disabled={pending}
+                        className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-accent-foreground transition hover:bg-accent/80 disabled:opacity-50"
+                      >
+                        Import {stagedShoppingCount} from admin
+                      </button>
+                    )}
+                    {shopping.length > 0 && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Clear the entire shopping list? This cannot be undone.')) {
+                            startTransition(async () => { await clearShoppingList(); router.refresh() })
+                          }
+                        }}
+                        disabled={pending}
+                        className="rounded-lg border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground transition hover:border-destructive hover:text-destructive disabled:opacity-50"
+                      >
+                        Clear list
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="mt-5 flex flex-col gap-2">
                   {shopping.map((item) => (

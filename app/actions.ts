@@ -181,8 +181,15 @@ export async function removeShoppingItem(id: string) {
   const { supabase } = await requireUser()
   await supabase.from('shopping_items').delete().eq('id', id)
   revalidatePath('/')
-}
-
+  }
+  
+export async function clearShoppingList() {
+  const { supabase } = await requireUser()
+  const { error } = await supabase.from('shopping_items').delete().not('id', 'is', null)
+  if (error) throw new Error(`Unable to clear shopping list: ${error.message}`)
+  revalidatePath('/')
+  }
+  
 export async function importShoppingCsv(csvText: string) {
   const { supabase, user } = await requireUser()
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
