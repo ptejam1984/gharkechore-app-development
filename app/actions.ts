@@ -237,11 +237,12 @@ export async function updateProfilePreferences(input: {
   const { supabase, user } = await requireUser()
   const displayName = input.displayName.trim().slice(0, 100)
   if (!displayName) return
-  await supabase.from('profiles').update({
+  const { error } = await supabase.from('profiles').update({
     display_name: displayName,
     theme: input.theme,
     notifications_enabled: input.notificationsEnabled,
   }).eq('id', user.id)
+  if (error) throw new Error(`Unable to save preferences: ${error.message}`)
   revalidatePath('/')
   revalidatePath('/settings')
 }
