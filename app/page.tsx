@@ -60,7 +60,7 @@ export default async function Page() {
 
   return (
     <Dashboard
-      profile={profile as Member}
+      profile={resolvedProfile}
       members={members}
       chores={chores}
       meals={meals}

@@ -150,7 +150,10 @@ export default function Dashboard({
   const router = useRouter()
 
   useEffect(() => {
-    const theme = profile.theme ?? 'system'
+    const savedTheme = profile.theme ?? document.cookie.match(/(?:^|; )gharke-theme=([^;]+)/)?.[1]
+    if (!savedTheme) return
+
+    const theme = decodeURIComponent(savedTheme)
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const namedThemes = ['block-frame', 'capsule', 'coral', 'daisy-days']
     const root = document.documentElement
