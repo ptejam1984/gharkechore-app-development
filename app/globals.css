@@ -244,3 +244,156 @@ input {
 @media (prefers-reduced-motion: reduce) {
   .completion-confetti i { animation: none; }
 }
+
+/* Reference themes: BlockFrame, Capsule, Coral, and Daisy Days. */
+.theme-block-frame {
+  color-scheme: light;
+  --background: #fffdf5;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #f7cb46;
+  --primary-foreground: #000000;
+  --secondary: #c0f7fe;
+  --secondary-foreground: #000000;
+  --muted: #fff0c7;
+  --muted-foreground: #3d3d3d;
+  --accent: #99e885;
+  --accent-foreground: #000000;
+  --border: #000000;
+  --input: #000000;
+  --ring: #fe90e8;
+  --success: #99e885;
+  --success-foreground: #000000;
+  --cta: #f7cb46;
+  --cta-foreground: #000000;
+  --radius: 0;
+  --sidebar: #c0f7fe;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #f7cb46;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #fe90e8;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #000000;
+  --sidebar-ring: #000000;
+  font-family: Inter, sans-serif;
+}
+.theme-block-frame body, .theme-block-frame button, .theme-block-frame input, .theme-block-frame select, .theme-block-frame textarea { border-radius: 0; }
+.theme-block-frame section, .theme-block-frame main > div > header, .theme-block-frame aside { border-width: 3px !important; border-color: #000 !important; box-shadow: 6px 6px 0 #000 !important; }
+.theme-block-frame h1, .theme-block-frame h2, .theme-block-frame h3 { font-family: Inter, sans-serif; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase; }
+.theme-block-frame button { border: 3px solid #000; box-shadow: 4px 4px 0 #000; }
+
+.theme-capsule {
+  color-scheme: light;
+  --background: #f5f5f0;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #e85d4e;
+  --primary-foreground: #ffffff;
+  --secondary: #c5b5e0;
+  --secondary-foreground: #1a1a1a;
+  --muted: #efeee8;
+  --muted-foreground: #605d59;
+  --accent: #a8e6cf;
+  --accent-foreground: #1a1a1a;
+  --border: #1e1e1e;
+  --input: #1e1e1e;
+  --ring: #8bb4f7;
+  --success: #c4d94e;
+  --success-foreground: #1a1a1a;
+  --cta: #f2d160;
+  --cta-foreground: #1a1a1a;
+  --radius: 1.25rem;
+  --sidebar: #f5b895;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #e85d4e;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #c5b5e0;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #1e1e1e;
+  --sidebar-ring: #1e1e1e;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.theme-capsule h1, .theme-capsule h2, .theme-capsule h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -0.03em; }
+.theme-capsule section, .theme-capsule main > div > header, .theme-capsule aside { border-width: 2px !important; border-color: #1e1e1e !important; border-radius: 2rem !important; box-shadow: 8px 8px 0 rgba(26,26,26,.08) !important; }
+.theme-capsule button, .theme-capsule input, .theme-capsule select { border-radius: 9999px; border-color: #1e1e1e; }
+
+.theme-coral {
+  color-scheme: light;
+  --background: #f5f0e8;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #e85d5d;
+  --primary-foreground: #ffffff;
+  --secondary: #e8e0d4;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e8e0d4;
+  --muted-foreground: #6b6b6b;
+  --accent: #e85d5d;
+  --accent-foreground: #ffffff;
+  --border: #1a1a1a;
+  --input: #b0b0b0;
+  --ring: #e85d5d;
+  --success: #e85d5d;
+  --success-foreground: #ffffff;
+  --cta: #e85d5d;
+  --cta-foreground: #ffffff;
+  --radius: 0;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #f5f0e8;
+  --sidebar-primary: #e85d5d;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #e8e0d4;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: #1a1a1a;
+  --sidebar-ring: #e85d5d;
+  font-family: Inter, sans-serif;
+}
+.theme-coral h1, .theme-coral h2, .theme-coral h3 { font-family: Impact, 'Arial Narrow', sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.theme-coral section, .theme-coral main > div > header, .theme-coral aside { border-radius: 0 !important; border-top: 4px solid #e85d5d !important; box-shadow: none !important; }
+
+.theme-daisy-days {
+  color-scheme: light;
+  --background: #f5f0e6;
+  --foreground: #2d2d2d;
+  --card: #ffffff;
+  --card-foreground: #2d2d2d;
+  --popover: #ffffff;
+  --popover-foreground: #2d2d2d;
+  --primary: #7ecdc0;
+  --primary-foreground: #2d2d2d;
+  --secondary: #fde68a;
+  --secondary-foreground: #2d2d2d;
+  --muted: #f7c8d4;
+  --muted-foreground: #6b6b6b;
+  --accent: #a8e6cf;
+  --accent-foreground: #2d2d2d;
+  --border: #2d2d2d;
+  --input: #2d2d2d;
+  --ring: #f8635f;
+  --success: #7ecdc0;
+  --success-foreground: #2d2d2d;
+  --cta: #fde68a;
+  --cta-foreground: #2d2d2d;
+  --radius: 1.25rem;
+  --sidebar: #d4a5e8;
+  --sidebar-foreground: #2d2d2d;
+  --sidebar-primary: #7ecdc0;
+  --sidebar-primary-foreground: #2d2d2d;
+  --sidebar-accent: #f7c8d4;
+  --sidebar-accent-foreground: #2d2d2d;
+  --sidebar-border: #2d2d2d;
+  --sidebar-ring: #2d2d2d;
+  font-family: 'Quicksand', sans-serif;
+}
+.theme-daisy-days h1, .theme-daisy-days h2, .theme-daisy-days h3 { font-family: 'Trebuchet MS', sans-serif; font-weight: 800; letter-spacing: .02em; }
+.theme-daisy-days section, .theme-daisy-days main > div > header, .theme-daisy-days aside { border-width: 3px !important; border-color: #2d2d2d !important; border-radius: 20px !important; box-shadow: 6px 6px 0 #2d2d2d !important; }
+.theme-daisy-days button, .theme-daisy-days input, .theme-daisy-days select { border-radius: 9999px; }

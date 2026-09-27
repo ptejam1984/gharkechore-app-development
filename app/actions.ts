@@ -231,7 +231,7 @@ export async function addCatalogTask(category: string, title: string) {
 
 export async function updateProfilePreferences(input: {
   displayName: string
-  theme: 'system' | 'light' | 'dark'
+  theme: 'system' | 'light' | 'dark' | 'block-frame' | 'capsule' | 'coral' | 'daisy-days'
   notificationsEnabled: boolean
 }) {
   const { supabase, user } = await requireUser()

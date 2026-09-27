@@ -5,7 +5,7 @@ export type Member = {
   display_name: string
   role: string
   avatar_key?: string
-  theme?: 'system' | 'light' | 'dark'
+  theme?: 'system' | 'light' | 'dark' | 'block-frame' | 'capsule' | 'coral' | 'daisy-days'
   notifications_enabled?: boolean
   google_calendar_connected?: boolean
   family_calendar_id?: string | null

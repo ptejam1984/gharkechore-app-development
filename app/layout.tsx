@@ -40,7 +40,7 @@ export default function RootLayout({
       <body className="min-w-0 w-full overflow-x-hidden bg-background text-foreground antialiased">
         <script
           dangerouslySetInnerHTML={{
-            __html: `(() => { const match = document.cookie.match(/(?:^|; )gharke-theme=([^;]+)/); const theme = match ? decodeURIComponent(match[1]) : 'system'; const dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.classList.remove('dark', 'light'); document.documentElement.classList.add(dark ? 'dark' : 'light'); })()`,
+            __html: `(() => { const match = document.cookie.match(/(?:^|; )gharke-theme=([^;]+)/); const theme = match ? decodeURIComponent(match[1]) : 'system'; const root = document.documentElement; root.classList.remove('dark', 'light', 'theme-block-frame', 'theme-capsule', 'theme-coral', 'theme-daisy-days'); const named = ['block-frame', 'capsule', 'coral', 'daisy-days']; if (named.includes(theme)) root.classList.add('theme-' + theme); else root.classList.add(theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'); })()`,
           }}
         />
         {children}

@@ -152,10 +152,11 @@ export default function Dashboard({
   useEffect(() => {
     const theme = profile.theme ?? 'system'
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
+    const namedThemes = ['block-frame', 'capsule', 'coral', 'daisy-days']
+    const root = document.documentElement
     document.cookie = `gharke-theme=${theme}; path=/; max-age=31536000; samesite=lax`
-    document.documentElement.classList.remove('dark', 'light')
-    document.documentElement.classList.add(useDark ? 'dark' : 'light')
+    root.classList.remove('dark', 'light', ...namedThemes.map((name) => `theme-${name}`))
+    root.classList.add(namedThemes.includes(theme) ? `theme-${theme}` : (theme === 'dark' || (theme === 'system' && prefersDark) ? 'dark' : 'light'))
   }, [profile.theme])
 
   useEffect(() => {
