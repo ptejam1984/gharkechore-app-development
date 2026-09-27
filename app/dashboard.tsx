@@ -22,16 +22,16 @@ import {
   Utensils,
   X,
 } from 'lucide-react'
-import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay } from '@/lib/data'
+import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay, WeekMealDay } from '@/lib/data'
 import {
   addChore,
-  updateMeal,
   addShoppingItem,
   removeShoppingItem,
   signOut,
   toggleOccurrence,
   toggleShoppingItem,
 } from './actions'
+import MealWeekPlanner from './meal-week-planner'
 
 const personTones: Record<string, string> = {
   mint: 'bg-mint-tint text-mint',
@@ -114,6 +114,7 @@ type Props = {
   meals: MealItem[]
   shopping: ShoppingItem[]
   week: WeekDay[]
+  weekMeals: WeekMealDay[]
   pendingChanges: number
   dateLabel: string
   greeting: string
@@ -126,6 +127,7 @@ export default function Dashboard({
   meals,
   shopping,
   week,
+  weekMeals,
   pendingChanges,
   dateLabel,
   greeting,
@@ -144,8 +146,6 @@ export default function Dashboard({
   const [taskTime, setTaskTime] = useState('')
   const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
-  const [editingMeals, setEditingMeals] = useState(false)
-  const [mealDrafts, setMealDrafts] = useState<Record<string, string>>({})
   const [pending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -228,19 +228,6 @@ export default function Dashboard({
     setTaskTime('')
     setTaskDays([1])
     setShowAdd(true)
-  }
-
-  function openMealEditor() {
-    setMealDrafts(Object.fromEntries(meals.map((meal) => [meal.slot, meal.dish ?? ''])))
-    setEditingMeals(true)
-  }
-
-  function saveMeals() {
-    startTransition(async () => {
-      for (const meal of meals) await updateMeal(meal.slot, mealDrafts[meal.slot] ?? '', meal.responsibleId)
-      setEditingMeals(false)
-      router.refresh()
-    })
   }
 
   function submitItem() {
@@ -568,6 +555,8 @@ export default function Dashboard({
                   <ChevronRight className="ml-auto size-4 text-muted-foreground" />
                 </div>
               </section>
+
+              <MealWeekPlanner week={weekMeals} members={members} />
             </div>
 
             <div className="flex flex-col gap-6">
@@ -597,14 +586,9 @@ export default function Dashboard({
               </section>
 
               <section id="meals" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
-                    <p className="mt-1 text-xs text-muted-foreground">{dateLabel}</p>
-                  </div>
-                  <button onClick={openMealEditor} className="text-xs font-bold text-success">
-                    Edit
-                  </button>
+                <div>
+                  <h2 className="font-serif text-[23px] font-semibold">Meals today</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">{dateLabel}</p>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 sm:mt-5 sm:gap-4">
                   {meals.map((meal) => (
@@ -620,27 +604,12 @@ export default function Dashboard({
                           {meal.dish ?? 'Up to the family'}
                         </p>
                       </div>
-                      <select
-                    aria-label={`Assign ${meal.slot}`}
-                    value={meal.responsibleId ?? ''}
-                    onChange={(event) => {
-                      startTransition(async () => {
-                        await updateMeal(meal.slot, meal.dish ?? '', event.target.value || null)
-                        router.refresh()
-                      })
-                    }}
-                    disabled={pending}
-                    className="max-w-[5.75rem] shrink-0 truncate appearance-none rounded-lg border-0 bg-transparent px-1 py-1 text-right text-[10px] text-success outline-none ring-1 ring-transparent focus:ring-success/50 disabled:opacity-60 sm:max-w-none sm:text-[11px]"
-                  >
-                    <option value="">Unassigned</option>
-                    {members.map((member) => (
-                      <option key={member.id} value={member.id}>{member.display_name}</option>
-                    ))}
-                  </select>
+                      <span className="max-w-[5.75rem] shrink-0 truncate text-right text-[11px] font-semibold text-muted-foreground sm:max-w-none">
+                        {meal.personName ?? 'Unassigned'}
+                      </span>
                     </div>
                   ))}
                 </div>
-                {editingMeals && <div className="mt-5 border-t border-border pt-4"><div className="flex flex-col gap-3">{meals.map((meal) => <label key={meal.slot} className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{meal.slot}<input value={mealDrafts[meal.slot] ?? ''} onChange={(e) => setMealDrafts((drafts) => ({ ...drafts, [meal.slot]: e.target.value }))} className="mt-1 h-10 w-full rounded-xl border border-input px-3 text-sm font-normal normal-case tracking-normal outline-none focus:border-success" placeholder="What are we having?" /></label>)}</div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setEditingMeals(false)} className="rounded-xl px-3 py-2 text-xs font-bold text-muted-foreground">Cancel</button><button onClick={saveMeals} disabled={pending || !isAdmin} className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground disabled:opacity-50">Save meals</button></div>{!isAdmin && <p className="mt-2 text-xs text-peach">Only an admin can edit the family meal plan.</p>}</div>}
               </section>
 
               <section id="shopping" className="w-full max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">

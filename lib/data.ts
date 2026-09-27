@@ -46,6 +46,16 @@ export type WeekDay = {
   isToday: boolean
 }
 
+export type MealSlot = 'breakfast' | 'lunch' | 'dinner'
+
+export type WeekMealDay = {
+  day: string
+  date: string
+  iso: string
+  isToday: boolean
+  meals: Record<MealSlot, { dish: string | null; responsibleId: string | null; responsibleName: string | null }>
+}
+
 const TZ = 'Europe/London'
 
 export function londonToday(): Date {
@@ -116,6 +126,7 @@ export async function getMembers(supabase: DB): Promise<Member[]> {
   const { data } = await supabase
     .from('profiles')
     .select('id, display_name, role, avatar_key, theme, notifications_enabled, google_calendar_connected')
+    .eq('is_test_account', false)
     .order('created_at', { ascending: true })
   return data ?? []
 }
@@ -172,6 +183,52 @@ export async function getTodayMeals(supabase: DB, day: string): Promise<MealItem
       dish: row?.dish_name ?? null,
       personName: row?.responsible_profile_id ? profileNames.get(row.responsible_profile_id) ?? null : null,
       responsibleId: row?.responsible_profile_id ?? null,
+    }
+  })
+}
+
+export async function getWeekMealPlan(supabase: DB, today: Date): Promise<WeekMealDay[]> {
+  const start = weekStart(today)
+  const end = addDays(start, 6)
+  const startIso = iso(start)
+  const endIso = iso(end)
+  const todayIso = iso(today)
+
+  const { data: mealRows } = await supabase
+    .from('meals')
+    .select('meal_date, slot, dish_name, responsible_profile_id')
+    .gte('meal_date', startIso)
+    .lte('meal_date', endIso)
+
+  const profileIds = [...new Set((mealRows ?? []).map((row: any) => row.responsible_profile_id).filter(Boolean))]
+  const { data: profiles } = profileIds.length
+    ? await supabase.from('profiles').select('id, display_name').in('id', profileIds)
+    : { data: [] }
+  const profileNames = new Map((profiles ?? []).map((profile: any) => [profile.id, profile.display_name]))
+
+  const slots: MealSlot[] = ['breakfast', 'lunch', 'dinner']
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(start, i)
+    const key = iso(d)
+    const meals = Object.fromEntries(
+      slots.map((slot) => {
+        const row: any = (mealRows ?? []).find((meal: any) => meal.meal_date === key && meal.slot === slot)
+        return [
+          slot,
+          {
+            dish: row?.dish_name ?? null,
+            responsibleId: row?.responsible_profile_id ?? null,
+            responsibleName: row?.responsible_profile_id ? profileNames.get(row.responsible_profile_id) ?? null : null,
+          },
+        ]
+      }),
+    ) as WeekMealDay['meals']
+    return {
+      day: new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(d).toUpperCase(),
+      date: String(d.getDate()),
+      iso: key,
+      isToday: key === todayIso,
+      meals,
     }
   })
 }
