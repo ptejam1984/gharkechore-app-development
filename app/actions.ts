@@ -208,6 +208,10 @@ export async function importShoppingCsv(csvText: string) {
 
   if (rows.length === 0) throw new Error('No items found in that CSV file.')
 
+  // Only one imported list is kept at a time: a re-upload replaces the previous one entirely.
+  const { error: clearError } = await supabase.from('shopping_list_staging').delete().not('id', 'is', null)
+  if (clearError) throw new Error(`Unable to replace shopping list: ${clearError.message}`)
+
   const { error } = await supabase.from('shopping_list_staging').insert(
     rows.map((row) => ({
       label: row.label!.slice(0, 160),
@@ -226,16 +230,11 @@ export async function importStagedShoppingList() {
   if (fetchError) throw new Error(`Unable to load imported items: ${fetchError.message}`)
   if (!staged || staged.length === 0) return
 
+  // The staged list is kept in admin indefinitely so it can be reused after "Clear list" — it is never deleted here.
   const { error: insertError } = await supabase.from('shopping_items').insert(
     staged.map((item) => ({ label: item.label, quantity: item.quantity, added_by: user.id })),
   )
   if (insertError) throw new Error(`Unable to add imported items: ${insertError.message}`)
-
-  const { error: deleteError } = await supabase
-    .from('shopping_list_staging')
-    .delete()
-    .in('id', staged.map((item) => item.id))
-  if (deleteError) throw new Error(`Unable to clear imported items: ${deleteError.message}`)
   revalidatePath('/')
   revalidatePath('/admin')
 }
