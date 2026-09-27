@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Flower2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { AuthShell } from '../auth-shell'
@@ -70,12 +69,6 @@ export default function LoginPage() {
           {loading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to the family?{' '}
-        <Link href="/auth/sign-up" className="font-semibold text-primary hover:underline">
-          Create an account
-        </Link>
-      </p>
     </AuthShell>
   )
 }

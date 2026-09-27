@@ -5,10 +5,12 @@ export const revalidate = 0
 import { createClient } from '@/lib/supabase/server'
 import Dashboard from './dashboard'
 import {
+  addDays,
   formatLongDate,
   getMembers,
   getPendingChanges,
   getShopping,
+  getStagedShoppingItems,
   getTodayChores,
   getTodayMeals,
   getWeek,
@@ -20,8 +22,10 @@ import {
   type Member,
 } from '@/lib/data'
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ week?: string }> }) {
   const supabase = await createClient()
+  const { week: weekParam } = await searchParams
+  const weekOffset = Math.max(-52, Math.min(52, Number.parseInt(weekParam ?? '0', 10) || 0))
 
   const {
     data: { user },
@@ -48,13 +52,16 @@ export default async function Page() {
     await seedStarterData(supabase, resolvedProfile.id, today)
   }
 
-  const [members, chores, meals, shopping, week, weekMeals, pendingChanges] = await Promise.all([
+  const mealWeekDate = addDays(today, weekOffset * 7)
+
+  const [members, chores, meals, shopping, stagedShopping, week, weekMeals, pendingChanges] = await Promise.all([
     getMembers(supabase),
     getTodayChores(supabase, todayIso, user.id),
     getTodayMeals(supabase, todayIso),
     getShopping(supabase),
+    getStagedShoppingItems(supabase),
     getWeek(supabase, today, user.id),
-    getWeekMealPlan(supabase, today),
+    getWeekMealPlan(supabase, mealWeekDate),
     getPendingChanges(supabase),
   ])
 
@@ -65,8 +72,10 @@ export default async function Page() {
       chores={chores}
       meals={meals}
       shopping={shopping}
+      stagedShoppingCount={stagedShopping.length}
       week={week}
       weekMeals={weekMeals}
+      weekOffset={weekOffset}
       pendingChanges={pendingChanges}
       dateLabel={formatLongDate(today)}
       greeting={greeting()}

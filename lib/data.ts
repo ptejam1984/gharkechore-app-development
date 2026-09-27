@@ -242,6 +242,16 @@ export async function getShopping(supabase: DB): Promise<ShoppingItem[]> {
   return data ?? []
 }
 
+export type StagedShoppingItem = { id: string; label: string; quantity: string | null }
+
+export async function getStagedShoppingItems(supabase: DB): Promise<StagedShoppingItem[]> {
+  const { data } = await supabase
+    .from('shopping_list_staging')
+    .select('id, label, quantity')
+    .order('created_at', { ascending: true })
+  return data ?? []
+}
+
 export async function getPendingChanges(supabase: DB): Promise<number> {
   const { count } = await supabase
     .from('change_requests')
