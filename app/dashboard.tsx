@@ -725,7 +725,23 @@ export default function Dashboard({
                   <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2" role="listbox" aria-label="Suggested tasks">
                     {visiblePickerTasks.map((task) => <button type="button" key={task} onClick={() => selectTask(task)} className="flex min-h-10 items-center justify-between rounded-xl border border-border bg-card px-3 text-left text-sm text-foreground hover:border-success hover:bg-success/10" role="option"><span>{task}</span><ChevronRight className="size-4 text-muted-foreground" /></button>)}
                   </div>
-                  <button type="button" onClick={() => { setNewChore(taskSearch.trim()); setTaskSearch(taskSearch.trim()) }} className="mt-2 text-xs font-bold text-mint hover:underline">+ Add custom task</button>
+                  {taskSearch.trim() && !visiblePickerTasks.some((task) => task.toLowerCase() === taskSearch.trim().toLowerCase()) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const title = taskSearch.trim()
+                        setNewChore(title)
+                        startTransition(async () => {
+                          await addChore({ title, assigneeId: profile.id, frequency: taskFrequency, date: taskDate, time: taskTime || undefined, weekdays: taskDays })
+                          setShowAdd(false)
+                        })
+                      }}
+                      disabled={pending}
+                      className="mt-2 text-xs font-bold text-mint hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      + Add &quot;{taskSearch.trim()}&quot; as custom task
+                    </button>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">This task will be assigned only to you.</p>
                 <div className="grid grid-cols-2 gap-2">
