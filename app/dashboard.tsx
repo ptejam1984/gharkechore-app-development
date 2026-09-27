@@ -26,6 +26,7 @@ import type { ChoreItem, Member, MealItem, ShoppingItem, WeekDay, WeekMealDay } 
 import {
   addChore,
   addShoppingItem,
+  importStagedShoppingList,
   removeShoppingItem,
   signOut,
   toggleOccurrence,
@@ -113,8 +114,10 @@ type Props = {
   chores: ChoreItem[]
   meals: MealItem[]
   shopping: ShoppingItem[]
+  stagedShoppingCount: number
   week: WeekDay[]
   weekMeals: WeekMealDay[]
+  weekOffset: number
   pendingChanges: number
   dateLabel: string
   greeting: string
@@ -126,8 +129,10 @@ export default function Dashboard({
   chores,
   meals,
   shopping,
+  stagedShoppingCount,
   week,
   weekMeals,
+  weekOffset,
   pendingChanges,
   dateLabel,
   greeting,
@@ -560,7 +565,7 @@ export default function Dashboard({
                 </div>
               </section>
 
-              <MealWeekPlanner week={weekMeals} members={members} />
+              <MealWeekPlanner week={weekMeals} members={members} weekOffset={weekOffset} />
             </div>
 
             <div className="contents xl:flex xl:flex-col xl:gap-6">
@@ -617,7 +622,7 @@ export default function Dashboard({
               </section>
 
               <section id="shopping" className="order-6 w-full xl:order-none max-w-full min-w-0 scroll-mt-6 rounded-[14px] border border-border bg-card p-3 shadow-[0_8px_30px_rgba(0,0,0,0.06)] sm:rounded-[24px] sm:p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-peach-tint text-peach">
                       <ShoppingBasket className="size-4" />
@@ -627,6 +632,15 @@ export default function Dashboard({
                       <p className="text-xs text-muted-foreground">{remainingShopping} to buy</p>
                     </div>
                   </div>
+                  {stagedShoppingCount > 0 && (
+                    <button
+                      onClick={() => startTransition(async () => { await importStagedShoppingList(); router.refresh() })}
+                      disabled={pending}
+                      className="rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-accent-foreground transition hover:bg-accent/80 disabled:opacity-50"
+                    >
+                      Import {stagedShoppingCount} from admin
+                    </button>
+                  )}
                 </div>
                 <div className="mt-5 flex flex-col gap-2">
                   {shopping.map((item) => (

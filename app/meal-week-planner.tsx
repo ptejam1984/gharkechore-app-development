@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { CalendarRange, ChefHat, X } from 'lucide-react'
+import { CalendarRange, ChefHat, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import type { Member, MealSlot, WeekMealDay } from '@/lib/data'
 import { updateWeekMeal } from './actions'
 
@@ -31,13 +31,38 @@ function emptyDrafts(day: WeekMealDay): Drafts {
   }
 }
 
-export default function MealWeekPlanner({ week, members }: { week: WeekMealDay[]; members: Member[] }) {
+function formatShort(isoStr: string): string {
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(`${isoStr}T00:00:00`))
+}
+
+export default function MealWeekPlanner({
+  week,
+  members,
+  weekOffset,
+}: {
+  week: WeekMealDay[]
+  members: Member[]
+  weekOffset: number
+}) {
   const [selectedIso, setSelectedIso] = useState<string | null>(null)
   const [drafts, setDrafts] = useState<Drafts | null>(null)
   const [pending, startTransition] = useTransition()
+  const [navigating, setNavigating] = useState(false)
   const router = useRouter()
 
+  useEffect(() => {
+    setSelectedIso(null)
+    setDrafts(null)
+    setNavigating(false)
+  }, [week])
+
   const selectedDay = week.find((day) => day.iso === selectedIso) ?? null
+  const rangeLabel = week.length ? `${formatShort(week[0].iso)} \u2013 ${formatShort(week[6].iso)}` : ''
+
+  function goToWeek(offset: number) {
+    setNavigating(true)
+    router.push(`/?week=${offset}#meals`)
+  }
 
   function openDay(day: WeekMealDay) {
     setDrafts(emptyDrafts(day))
@@ -74,6 +99,31 @@ export default function MealWeekPlanner({ week, members }: { week: WeekMealDay[]
         <div className="flex size-9 items-center justify-center rounded-xl bg-secondary/60 text-secondary-foreground">
           <CalendarRange className="size-[18px]" />
         </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <button
+          onClick={() => goToWeek(weekOffset - 1)}
+          disabled={navigating}
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-mint hover:text-foreground disabled:opacity-50"
+          aria-label="Previous week"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+        <div className="flex flex-col items-center">
+          <span className="text-sm font-semibold text-secondary-foreground">
+            {weekOffset === 0 ? 'This week' : weekOffset > 0 ? 'Upcoming week' : 'Past week'}
+          </span>
+          <span className="text-xs text-muted-foreground">{rangeLabel}</span>
+        </div>
+        <button
+          onClick={() => goToWeek(weekOffset + 1)}
+          disabled={navigating}
+          className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:border-mint hover:text-foreground disabled:opacity-50"
+          aria-label="Next week"
+        >
+          <ChevronRight className="size-4" />
+        </button>
       </div>
 
       <div className="mt-4 min-w-0 overflow-hidden pb-1 sm:mt-5">

@@ -183,6 +183,66 @@ export async function removeShoppingItem(id: string) {
   revalidatePath('/')
 }
 
+export async function importShoppingCsv(csvText: string) {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return
+
+  const rows = csvText
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const [label, quantity] = line.split(',').map((part) => part?.trim())
+      return { label, quantity, index }
+    })
+    .filter((row) => row.label && !(row.index === 0 && /^(label|item|name)$/i.test(row.label)))
+    .slice(0, 500)
+
+  if (rows.length === 0) throw new Error('No items found in that CSV file.')
+
+  const { error } = await supabase.from('shopping_list_staging').insert(
+    rows.map((row) => ({
+      label: row.label!.slice(0, 160),
+      quantity: row.quantity ? row.quantity.slice(0, 60) : null,
+      created_by: user.id,
+    })),
+  )
+  if (error) throw new Error(`Unable to import shopping list: ${error.message}`)
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
+export async function importStagedShoppingList() {
+  const { supabase, user } = await requireUser()
+  const { data: staged, error: fetchError } = await supabase.from('shopping_list_staging').select('id, label, quantity')
+  if (fetchError) throw new Error(`Unable to load imported items: ${fetchError.message}`)
+  if (!staged || staged.length === 0) return
+
+  const { error: insertError } = await supabase.from('shopping_items').insert(
+    staged.map((item) => ({ label: item.label, quantity: item.quantity, added_by: user.id })),
+  )
+  if (insertError) throw new Error(`Unable to add imported items: ${insertError.message}`)
+
+  const { error: deleteError } = await supabase
+    .from('shopping_list_staging')
+    .delete()
+    .in('id', staged.map((item) => item.id))
+  if (deleteError) throw new Error(`Unable to clear imported items: ${deleteError.message}`)
+  revalidatePath('/')
+  revalidatePath('/admin')
+}
+
+export async function updateMemberRole(memberId: string, role: 'admin' | 'member') {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin' || memberId === user.id) return
+  const { error } = await supabase.from('profiles').update({ role }).eq('id', memberId)
+  if (error) throw new Error(`Unable to update role: ${error.message}`)
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
 export async function updateCatalogTask(id: string, title: string) {
   const { supabase, user } = await requireUser()
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
