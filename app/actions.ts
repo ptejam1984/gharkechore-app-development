@@ -124,14 +124,23 @@ export async function addOneOffChore(title: string) {
 }
 
 export async function updateMeal(slot: 'breakfast' | 'lunch' | 'dinner', dish: string, responsibleId: string | null) {
+  return updateWeekMeal(iso(londonToday()), slot, dish, responsibleId)
+}
+
+export async function updateWeekMeal(
+  date: string,
+  slot: 'breakfast' | 'lunch' | 'dinner',
+  dish: string,
+  responsibleId: string | null,
+) {
   const { supabase, user } = await requireUser()
   const cleanDish = dish.trim().slice(0, 160) || null
   if (responsibleId) {
     const { data: assignee } = await supabase.from('profiles').select('id').eq('id', responsibleId).single()
     if (!assignee) return
   }
-  const mealDate = iso(londonToday())
-  const weekDate = iso(weekStart(londonToday()))
+  const mealDate = date
+  const weekDate = iso(weekStart(new Date(`${date}T00:00:00`)))
   const { error } = await supabase.from('meals').upsert({
     week_start: weekDate,
     meal_date: mealDate,
@@ -222,7 +231,7 @@ export async function addCatalogTask(category: string, title: string) {
 
 export async function updateProfilePreferences(input: {
   displayName: string
-  theme: 'system' | 'light' | 'dark'
+  theme: 'system' | 'light' | 'dark' | 'block-frame' | 'capsule' | 'coral' | 'daisy-days'
   notificationsEnabled: boolean
 }) {
   const { supabase, user } = await requireUser()

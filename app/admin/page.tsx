@@ -18,7 +18,7 @@ export default async function AdminPage() {
   if (profile?.role !== 'admin') redirect('/')
 
   const [{ data: members }, { data: templates }, { data: occurrences }] = await Promise.all([
-    supabase.from('profiles').select('id, display_name, role, visual_only, created_at').order('created_at'),
+    supabase.from('profiles').select('id, display_name, role, visual_only, created_at').eq('is_test_account', false).order('created_at'),
     supabase.from('chore_templates').select('id, title, category, frequency, active, configuration_complete').order('created_at'),
     supabase
       .from('chore_occurrences')

@@ -9,16 +9,34 @@ import type { Member } from '@/lib/data'
 
 export default function SettingsClient({ member }: { member: Member }) {
   const [displayName, setDisplayName] = useState(member.display_name)
-  const [theme, setTheme] = useState<'system' | 'light' | 'dark'>(member.theme ?? 'system')
+  const [theme, setTheme] = useState<NonNullable<Member['theme']>>(member.theme ?? 'system')
+  const themeOptions = [
+    { value: 'system', label: 'System', description: 'Follow your device' },
+    { value: 'light', label: 'Classic light', description: 'GharKeChore original' },
+    { value: 'dark', label: 'Classic dark', description: 'Deep pine night' },
+    { value: 'block-frame', label: 'BlockFrame', description: 'Bold neobrutalist' },
+    { value: 'capsule', label: 'Capsule', description: 'Playful editorial pills' },
+    { value: 'coral', label: 'Coral', description: 'Magazine poster' },
+    { value: 'daisy-days', label: 'Daisy Days', description: 'Cheerful storybook' },
+  ] as const
+
+  const applyTheme = (selectedTheme: NonNullable<Member['theme']>) => {
+    const root = document.documentElement
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isDark = selectedTheme === 'dark' || (selectedTheme === 'system' && prefersDark)
+    root.classList.remove('dark', 'light', 'theme-block-frame', 'theme-capsule', 'theme-coral', 'theme-daisy-days')
+    if (selectedTheme === 'block-frame' || selectedTheme === 'capsule' || selectedTheme === 'coral' || selectedTheme === 'daisy-days') {
+      root.classList.add(`theme-${selectedTheme}`)
+    } else {
+      root.classList.add(isDark ? 'dark' : 'light')
+    }
+  }
   const [message, setMessage] = useState('')
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
     document.cookie = `gharke-theme=${theme}; path=/; max-age=31536000; samesite=lax`
-    document.documentElement.classList.remove('dark', 'light')
-    document.documentElement.classList.add(useDark ? 'dark' : 'light')
+    applyTheme(theme)
   }, [theme])
 
   useEffect(() => {
@@ -39,10 +57,8 @@ export default function SettingsClient({ member }: { member: Member }) {
         theme,
         notificationsEnabled: Boolean(member.notifications_enabled),
       })
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const useDark = theme === 'dark' || (theme === 'system' && prefersDark)
-      document.documentElement.classList.remove('dark', 'light')
-      document.documentElement.classList.add(useDark ? 'dark' : 'light')
+      document.cookie = `gharke-theme=${theme}; path=/; max-age=31536000; samesite=lax`
+      applyTheme(theme)
       setMessage('Settings saved')
       window.setTimeout(() => setMessage(''), 2500)
     })
@@ -71,7 +87,7 @@ export default function SettingsClient({ member }: { member: Member }) {
 
         <section className="mt-5 rounded-[28px] border border-border bg-card p-6 shadow-[0_10px_30px_rgba(54,67,61,0.05)]">
           <div className="flex items-center gap-3"><Palette className="size-5 text-success" /><h2 className="text-lg font-bold">Appearance</h2></div>
-          <div className="mt-5 grid grid-cols-3 gap-2">{(['system', 'light', 'dark'] as const).map((option) => <button type="button" key={option} onClick={() => setTheme(option)} className={`rounded-xl border px-3 py-3 text-sm font-bold capitalize ${theme === option ? 'border-success bg-accent text-primary' : 'border-border text-muted-foreground'}`}>{option}</button>)}</div>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">{themeOptions.map((option) => <button type="button" key={option.value} onClick={() => setTheme(option.value)} className={`min-h-20 rounded-xl border px-3 py-3 text-left transition-colors ${theme === option.value ? 'border-success bg-accent text-primary' : 'border-border text-muted-foreground hover:bg-muted'}`}><span className="block text-sm font-bold">{option.label}</span><span className="mt-1 block text-xs font-normal leading-4 opacity-75">{option.description}</span></button>)}</div>
         </section>
 
         <div className="mt-6 flex items-center justify-end gap-4 pb-8"><span className="text-sm font-semibold text-success">{message}</span><button onClick={save} disabled={pending || !displayName.trim()} className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-bold text-white hover:bg-primary disabled:opacity-50"><Save className="size-4" />{pending ? 'Saving…' : 'Save settings'}</button></div>

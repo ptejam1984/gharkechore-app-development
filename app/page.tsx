@@ -12,6 +12,7 @@ import {
   getTodayChores,
   getTodayMeals,
   getWeek,
+  getWeekMealPlan,
   greeting,
   iso,
   londonToday,
@@ -47,12 +48,13 @@ export default async function Page() {
     await seedStarterData(supabase, resolvedProfile.id, today)
   }
 
-  const [members, chores, meals, shopping, week, pendingChanges] = await Promise.all([
+  const [members, chores, meals, shopping, week, weekMeals, pendingChanges] = await Promise.all([
     getMembers(supabase),
     getTodayChores(supabase, todayIso, user.id),
     getTodayMeals(supabase, todayIso),
     getShopping(supabase),
     getWeek(supabase, today, user.id),
+    getWeekMealPlan(supabase, today),
     getPendingChanges(supabase),
   ])
 
@@ -64,6 +66,7 @@ export default async function Page() {
       meals={meals}
       shopping={shopping}
       week={week}
+      weekMeals={weekMeals}
       pendingChanges={pendingChanges}
       dateLabel={formatLongDate(today)}
       greeting={greeting()}
