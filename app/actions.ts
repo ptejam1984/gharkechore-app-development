@@ -71,11 +71,12 @@ export async function addChore(input: {
   const assigneeId = user.id
 
   const frequency = input.frequency === 'once' ? 'on_demand' : input.frequency
-  const { data: template } = await supabase.from('chore_templates').insert({
+  const { data: template, error: templateError } = await supabase.from('chore_templates').insert({
     title: clean, frequency, active: true, configuration_complete: true, created_by: user.id,
     due_time: input.time || null,
     weekday: input.frequency === 'weekly' ? (input.weekdays?.[0] ?? 1) : null,
   }).select('id').single()
+  if (templateError) throw new Error(`Unable to create task: ${templateError.message}`)
   if (!template) return
 
   const start = new Date(`${input.date}T00:00:00`)
@@ -86,12 +87,13 @@ export async function addChore(input: {
     day.setDate(start.getDate() + i)
     if (input.frequency === 'daily' || input.frequency === 'once' || (input.weekdays ?? []).includes(day.getDay())) dates.push(iso(day))
   }
-  const { data: occurrences } = await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({
+  const { data: occurrences, error: occurrencesError } = await supabase.from('chore_occurrences').insert(dates.map((occurrenceDate) => ({
   template_id: template.id,
   assigned_to: assigneeId,
   occurrence_date: occurrenceDate,
   due_at: input.time ? ukLocalDateTimeToIso(occurrenceDate, input.time) : null,
   }))).select('id, occurrence_date, due_at')
+  if (occurrencesError) throw new Error(`Unable to schedule task: ${occurrencesError.message}`)
 
   const { data: assignee } = await supabase.from('profiles').select('google_calendar_connected').eq('id', assigneeId).single()
   if (assigneeId && assignee) {
