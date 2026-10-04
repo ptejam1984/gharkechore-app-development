@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import CatalogManager from './catalog-manager'
 import CalendarSettings from './calendar-settings'
 import MemberRoleControl from './member-role-control'
+import ResetPasswordControl from './reset-password-control'
 import ShoppingCsvImport from './shopping-csv-import'
 
 export default async function AdminPage() {
@@ -62,9 +63,10 @@ export default async function AdminPage() {
               {(members ?? []).map((member) => (
                 <div key={member.id} className="flex items-center justify-between rounded-xl bg-sidebar px-4 py-3">
                   <div><p className="font-semibold">{member.display_name}</p><p className="text-xs text-muted-foreground">{member.visual_only ? 'Visual only' : 'Can complete chores'}</p></div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-bold capitalize text-secondary-foreground">{member.role}</span>
                     {member.id !== user.id && <MemberRoleControl memberId={member.id} role={member.role} />}
+                    <ResetPasswordControl memberId={member.id} memberName={member.display_name} />
                   </div>
                 </div>
               ))}

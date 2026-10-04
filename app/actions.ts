@@ -3,8 +3,25 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
 import { createCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from '@/lib/google-calendar'
+
+async function requireAdmin() {
+  const { supabase, user } = await requireUser()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') throw new Error('Only admins can do this.')
+  return { supabase, user }
+}
+
+export async function resetMemberPassword(memberId: string, newPassword: string) {
+  await requireAdmin()
+  if (newPassword.length < 8) throw new Error('Password must be at least 8 characters.')
+
+  const admin = createAdminClient()
+  const { error } = await admin.auth.admin.updateUserById(memberId, { password: newPassword })
+  if (error) throw new Error(error.message)
+}
 
 async function requireUser() {
   const supabase = await createClient()
