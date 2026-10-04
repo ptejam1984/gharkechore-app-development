@@ -260,8 +260,8 @@ export async function getPendingChanges(supabase: DB): Promise<number> {
   return count ?? 0
 }
 
-export async function getWeek(supabase: DB, today: Date, userId: string): Promise<WeekDay[]> {
-  const start = weekStart(today)
+export async function getWeek(supabase: DB, today: Date, userId: string, weekOffset = 0): Promise<WeekDay[]> {
+  const start = addDays(weekStart(today), weekOffset * 7)
   const end = addDays(start, 6)
   const startIso = iso(start)
   const endIso = iso(end)

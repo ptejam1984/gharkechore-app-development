@@ -7,6 +7,7 @@ import {
   Bell,
   CalendarDays,
   Check,
+  ChevronLeft,
   ChevronRight,
   ClipboardList,
   Clock3,
@@ -153,7 +154,18 @@ export default function Dashboard({
   const [taskDays, setTaskDays] = useState<number[]>([1])
   const [newItem, setNewItem] = useState('')
   const [pending, startTransition] = useTransition()
+  const [choreWeekNavigating, setChoreWeekNavigating] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setChoreWeekNavigating(false)
+    setSelectedWeekDay(null)
+  }, [week])
+
+  function goToChoreWeek(offset: number) {
+    setChoreWeekNavigating(true)
+    router.push(`/?week=${offset}#this-week`)
+  }
 
   useEffect(() => {
     const savedTheme = profile.theme ?? document.cookie.match(/(?:^|; )gharke-theme=([^;]+)/)?.[1]
@@ -182,6 +194,13 @@ export default function Dashboard({
   
 
   const isAdmin = profile.role === 'admin'
+
+  const weekRangeLabel = useMemo(() => {
+    if (!week.length) return ''
+    const format = (isoStr: string) =>
+      new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(`${isoStr}T00:00:00`))
+    return `${format(week[0].iso)} \u2013 ${format(week[6].iso)}`
+  }, [week])
   
   const filterNames = useMemo(() => ['Everyone', ...members.map((m) => m.display_name)], [members])
   const completed = useMemo(() => chores.filter((c) => c.done).length, [chores])
@@ -516,10 +535,35 @@ export default function Dashboard({
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.15em] text-secondary-foreground">This week</p>
                     <h2 className="mt-1 font-serif text-[21px] font-semibold sm:text-[24px]">A week at a glance</h2>
+                    {weekRangeLabel && <p className="mt-0.5 text-xs font-medium text-muted-foreground">{weekRangeLabel}</p>}
                   </div>
-                  <button className="rounded-lg p-1.5 text-secondary-foreground hover:bg-secondary/60" aria-label="Open calendar">
-                    <CalendarDays className="size-[18px]" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => goToChoreWeek(weekOffset - 1)}
+                      disabled={choreWeekNavigating}
+                      aria-label="Previous week"
+                      className="rounded-lg p-1.5 text-secondary-foreground hover:bg-secondary/60 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="size-[18px]" />
+                    </button>
+                    {weekOffset !== 0 && (
+                      <button
+                        onClick={() => goToChoreWeek(0)}
+                        disabled={choreWeekNavigating}
+                        className="rounded-lg px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-secondary-foreground hover:bg-secondary/60 disabled:opacity-50"
+                      >
+                        Today
+                      </button>
+                    )}
+                    <button
+                      onClick={() => goToChoreWeek(weekOffset + 1)}
+                      disabled={choreWeekNavigating}
+                      aria-label="Next week"
+                      className="rounded-lg p-1.5 text-secondary-foreground hover:bg-secondary/60 disabled:opacity-50"
+                    >
+                      <ChevronRight className="size-[18px]" />
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-4 min-w-0 overflow-hidden pb-1 sm:mt-5">
                   <div className="grid w-full min-w-0 grid-cols-7 gap-0.5 sm:gap-2">

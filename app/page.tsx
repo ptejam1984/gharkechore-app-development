@@ -60,7 +60,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ w
     getTodayMeals(supabase, todayIso),
     getShopping(supabase),
     getStagedShoppingItems(supabase),
-    getWeek(supabase, today, user.id),
+    getWeek(supabase, today, user.id, weekOffset),
     getWeekMealPlan(supabase, mealWeekDate),
     getPendingChanges(supabase),
   ])
