@@ -7,6 +7,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { iso, londonToday, ukLocalDateTimeToIso, weekStart } from '@/lib/data'
 import { createCalendarEvent, deleteCalendarEvent, updateCalendarEvent } from '@/lib/google-calendar'
 
+function isAuthorizationError(message: string) {
+  return /authoriz|unauthenticated|unauthorized|invalid_grant|401|403/i.test(message)
+}
+
 async function requireAdmin() {
   const { supabase, user } = await requireUser()
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
@@ -70,6 +74,9 @@ export async function toggleOccurrence(occurrenceId: string, done: boolean) {
       google_calendar_sync_error: deletionErrors || null,
       google_calendar_synced_at: null,
     }).eq('id', occurrenceId)
+    if (!personalDeleted && personalDeletion.status === 'rejected' && personalDeletion.reason instanceof Error && isAuthorizationError(personalDeletion.reason.message)) {
+      await supabase.from('profiles').update({ google_calendar_connected: false }).eq('id', occurrence.assigned_to)
+    }
   }
   revalidatePath('/')
 }
@@ -126,10 +133,16 @@ export async function addChore(input: {
           : ''
         const { error: syncError } = await supabase.from('chore_occurrences').update({ personal_google_event_id: personalEventId, family_google_event_id: null, google_calendar_sync_error: errors || null, google_calendar_synced_at: errors ? null : new Date().toISOString() }).eq('id', occurrence.id)
         if (syncError) throw syncError
+        if (errors && isAuthorizationError(errors)) {
+          await supabase.from('profiles').update({ google_calendar_connected: false }).eq('id', assigneeId)
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Google Calendar sync failed'
         console.error('[v0] Google Calendar task sync failed:', message)
         await supabase.from('chore_occurrences').update({ google_calendar_sync_error: message.slice(0, 500), google_calendar_synced_at: null }).eq('id', occurrence.id)
+        if (isAuthorizationError(message)) {
+          await supabase.from('profiles').update({ google_calendar_connected: false }).eq('id', assigneeId)
+        }
         // Calendar sync is best-effort: the chore must still be created when a
         // provider authorization has expired or the selected calendar is unavailable.
       }
@@ -278,10 +291,13 @@ export async function updateCatalogTask(id: string, title: string) {
   ])
   for (const occurrence of occurrences ?? []) {
     const eventInput = { title: cleanTitle, date: occurrence.occurrence_date, dueAt: occurrence.due_at }
-    await Promise.allSettled([
+    const [personalUpdate] = await Promise.allSettled([
       occurrence.personal_google_event_id ? updateCalendarEvent(occurrence.assigned_to, 'primary', occurrence.personal_google_event_id, eventInput) : Promise.resolve(),
       occurrence.family_google_event_id && admin?.family_calendar_id ? updateCalendarEvent(admin.id, admin.family_calendar_id, occurrence.family_google_event_id, eventInput) : Promise.resolve(),
     ])
+    if (personalUpdate.status === 'rejected' && personalUpdate.reason instanceof Error && isAuthorizationError(personalUpdate.reason.message)) {
+      await supabase.from('profiles').update({ google_calendar_connected: false }).eq('id', occurrence.assigned_to)
+    }
   }
   revalidatePath('/admin')
   revalidatePath('/')
